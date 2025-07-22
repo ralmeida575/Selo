@@ -4,7 +4,7 @@
   <meta name="csrf-token" content="{{ csrf_token() }}">
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <link rel="stylesheet" href="/build/assets/stylesindex.css">
+  <link rel="stylesheet" href="/build/assets/stylesNew.css">
   <title>GERADOR DE CERTIFICADOS</title>
 
   <script src="{{ asset('build/assets/scripts.js') }}"></script>
@@ -24,17 +24,17 @@
   <div class="container">
     <div class="header">
       <h1 class="large-title">Gerador de Certificados</h1> 
-      <img src="https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcSqllfNihEGukGwfcxEQ1PBGViCreJ3zwJHow&s" alt="Logo" class="logo">
+      <img src="{{ asset('build/assets/img/Selo.png') }}" alt="Logo" class="logo">
     </div>
     <div class="content">
 
         <form onsubmit="enviarFormulario(event)" enctype="multipart/form-data">
         @csrf
-        <label for="file">Selecione o arquivo Excel:</label>
+        <label for="file-label">Selecione o arquivo Excel:</label>
         <label for="file" class="file-label">
           <span id="file-name">Selecione um arquivo...</span>
         </label>
-        <input type="file" name="file" id="file" accept=".xls,.xlsx" required onchange="updateFileName()">
+        <input type="file" name="file" id="file" accept=".xls,.xlsx" style="display:none;" required onchange="updateFileName()">
 
         <label for="template">Escolha o modelo de certificado:</label>
         <select name="template" id="template" required>
@@ -44,8 +44,8 @@
         </select>
 
         <button type="submit"><b>Gerar e Enviar Certificados</b></button>
-
-        <div id="loading">
+        
+        <div id="loading" style="display:none;" class="loading">
           <div class="spinner"></div>
           Criando e Enviando...
         </div>
