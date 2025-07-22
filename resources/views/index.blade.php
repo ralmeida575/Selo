@@ -42,8 +42,14 @@
           <option value="template_certificado_2.pdf">Pós-Odontologia</option>
           <option value="template_certificado_3.pdf">SLMandic</option>
         </select>
-
+        <div class="form-group">
+        <label for="enviar_email">  
+        <input type="checkbox" id="enviar_email" name="enviar_email" value="1">
+        Enviar Certificado por e-mail aos participantes
+        </label>
+        </div>
         <button type="submit"><b>Gerar e Enviar Certificados</b></button>
+
         
         <div id="loading" style="display:none;" class="loading">
           <div class="spinner"></div>

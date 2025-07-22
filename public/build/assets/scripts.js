@@ -1,44 +1,100 @@
 document.addEventListener('DOMContentLoaded', function() {
-    // Exibe a notificação com o total de certificados gerados
-    window.showNotification = function(type, quantidade) {
-        const notificationContainer = document.getElementById('notification-container');
-        const notificationContent = document.getElementById('notification-content');
-        notificationContainer.className = 'notification-container ' + (type === 'success' ? 'success' : 'error');
+    // Elementos globais
+    const notificationContainer = document.getElementById('notification-container');
+    const notificationContent = document.getElementById('notification-content');
+    const errorContainer = document.getElementById('error-container');
+    const errorContent = document.getElementById('error-content');
+    const messageElement = document.querySelector(".message");
+    const loadingElement = document.querySelector("#loading");
+    const form = document.querySelector("form");
+    const emailCheckbox = document.getElementById('enviar_email');
+    
+    // Adiciona o checkbox de envio de e-mail se não existir
+    if (!emailCheckbox && form) {
+        const emailDiv = document.createElement('div');
+        emailDiv.className = 'form-group';
+        emailDiv.innerHTML = `
+            <label for="enviar_email">
+                <input type="checkbox" id="enviar_email" name="enviar_email" checked>
+                Enviar e-mail para os participantes
+            </label>
+        `;
+        form.insertBefore(emailDiv, form.querySelector('.form-group:last-child'));
+    }
 
-        // Limpa o conteúdo anterior e exibe somente o total
-        notificationContent.innerHTML = ''; 
+    // Exibe notificação com total de certificados e opção de enviar e-mails posteriormente
+    window.showNotification = function(type, quantidade, certificados = []) {
+        notificationContainer.className = 'notification-container ' + (type === 'success' ? 'success' : 'error');
+        notificationContent.innerHTML = '';
+
+        // Total de certificados
         const totalDiv = document.createElement('div');
         totalDiv.style.fontWeight = 'bold';
-        totalDiv.textContent = "Total de Certificados Gerados: " + quantidade;
+        totalDiv.textContent = `✅ ${quantidade} certificados gerados com sucesso!`;
         notificationContent.appendChild(totalDiv);
 
-        // Exibe o container de notificação
-        notificationContainer.style.display = 'block';
-
-        // Adiciona botão de fechamento, se ainda não existir
-        if (!notificationContainer.querySelector('.close-notification')) {
-            const closeButton = document.createElement('span');
-            closeButton.textContent = '×'; // Símbolo de fechamento
-            closeButton.className = 'close-notification';
-            closeButton.onclick = () => {
-                notificationContainer.style.display = 'none';
-            };
-            notificationContainer.appendChild(closeButton);
+        // Se e-mails não foram enviados, mostra opção para enviar depois
+        if (certificados.length > 0 && !document.getElementById('enviar_email').checked) {
+            const emailDiv = document.createElement('div');
+            emailDiv.style.marginTop = '10px';
+            
+            const emailButton = document.createElement('button');
+            emailButton.className = 'btn-enviar-email';
+            emailButton.textContent = 'Enviar e-mails agora';
+            emailButton.onclick = () => enviarEmailsPosteriormente(certificados);
+            
+            emailDiv.appendChild(emailButton);
+            notificationContent.appendChild(emailDiv);
         }
+
+        notificationContainer.style.display = 'block';
+        addCloseButton(notificationContainer);
     };
 
-    // Exibe a lista de certificados não gerados (erros) no container de erros
-    window.showErrorCertificates = function(erros) {
-        const errorContainer = document.getElementById('error-container');
-        const errorContent = document.getElementById('error-content');
-        errorContent.innerHTML = ''; // Limpa o conteúdo anterior
+    // Função para enviar e-mails posteriormente
+    async function enviarEmailsPosteriormente(certificados) {
+        const loading = document.createElement('div');
+        loading.textContent = 'Enviando e-mails...';
+        loading.style.margin = '10px 0';
+        notificationContent.appendChild(loading);
 
-        if (erros && erros.length > 0) {
+        try {
+            const promises = certificados.map(cert => {
+                return fetch('/enviar-email-posterior', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').content
+                    },
+                    body: JSON.stringify({ hash: cert.hash })
+                });
+            });
+
+            const results = await Promise.all(promises);
+            const successful = results.filter(r => r.ok).length;
+
+            loading.textContent = `E-mails enviados: ${successful}/${certificados.length}`;
+            
+            // Remove o botão após o envio
+            const emailButton = notificationContent.querySelector('.btn-enviar-email');
+            if (emailButton) emailButton.remove();
+            
+        } catch (error) {
+            loading.textContent = 'Erro ao enviar e-mails: ' + error.message;
+            console.error(error);
+        }
+    }
+
+    // Exibe erros (mantido igual com pequenas melhorias)
+    window.showErrorCertificates = function(erros) {
+        errorContent.innerHTML = '';
+
+        if (erros?.length > 0) {
             const ul = document.createElement('ul');
             erros.forEach(erro => {
                 const li = document.createElement('li');
-                // Exibe: Linha X: [mensagem de erro] (Nome: Y, Curso: Z)
-                li.textContent = `Linha ${erro.linha}: ${erro.erro} (${erro.nome}, ${erro.curso})`;
+                li.innerHTML = `<strong>Linha ${erro.linha}:</strong> ${erro.erro} <br> 
+                                <small>Nome: ${erro.nome}, Curso: ${erro.curso}</small>`;
                 ul.appendChild(li);
             });
             errorContent.appendChild(ul);
@@ -47,74 +103,67 @@ document.addEventListener('DOMContentLoaded', function() {
         }
 
         errorContainer.style.display = 'block';
+        addCloseButton(errorContainer);
+    };
 
-        // Adiciona botão de fechamento, se ainda não existir
-        if (!errorContainer.querySelector('.close-notification')) {
+    // Adiciona botão de fechamento
+    function addCloseButton(container) {
+        if (!container.querySelector('.close-notification')) {
             const closeButton = document.createElement('span');
             closeButton.textContent = '×';
             closeButton.className = 'close-notification';
-            closeButton.onclick = () => {
-                errorContainer.style.display = 'none';
-            };
-            errorContainer.appendChild(closeButton);
+            closeButton.onclick = () => container.style.display = 'none';
+            container.appendChild(closeButton);
         }
-    };
+    }
 
-    // Envia o formulário e processa a resposta
+    // Envia o formulário (atualizado para incluir a opção de e-mail)
     window.enviarFormulario = async function(event) {
         event.preventDefault();
-        const form = document.querySelector("form");
         const formData = new FormData(form);
-        const message = document.querySelector(".message");
-        const loading = document.querySelector("#loading");
-        const token = document.querySelector('meta[name="csrf-token"]').getAttribute('content');
+        const enviarEmail = document.getElementById('enviar_email').checked;
+        formData.append('enviar_email', document.getElementById('enviar_email').checked ? '1' : '0');
+        const token = document.querySelector('meta[name="csrf-token"]').content;
 
-        message.style.display = 'none';
-        loading.style.display = 'block';
+        messageElement.style.display = 'none';
+        loadingElement.style.display = 'block';
 
         try {
             const response = await fetch("/gerar-certificados", {
                 method: "POST",
                 body: formData,
-                headers: {
-                    "X-CSRF-TOKEN": token
-                }
+                headers: { "X-CSRF-TOKEN": token }
             });
 
             const result = await response.json();
-            loading.style.display = 'none';
-            message.style.display = 'block';
-
+            loadingElement.style.display = 'none';
+            
             if (response.ok) {
-                message.textContent = result.mensagem || 'Certificados gerados com sucesso!';
-                message.className = "message success-message";
-
-                // Exibe somente o total de certificados gerados
-                showNotification('success', result.quantidadeCertificados);
-
-                // Se houver erros, exibe a lista de erros no container separado
-                if (result.erros && result.erros.length > 0) {
+                messageElement.textContent = result.mensagem || 'Operação concluída!';
+                messageElement.className = "message success-message";
+                
+                // Filtra apenas certificados com e-mail válido
+                const certificadosComEmail = result.certificados?.filter(c => c.email) || [];
+                
+                showNotification('success', result.quantidadeCertificados, certificadosComEmail);
+                
+                if (result.erros?.length > 0) {
                     showErrorCertificates(result.erros);
                 }
-
-                // Remove a mensagem após 10 segundos
-                setTimeout(() => {
-                    message.style.display = 'none';
-                }, 10000);
             } else {
-                message.textContent = result.erro || 'Erro ao processar.';
-                message.className = "message error";
-                // Se houver erros no retorno, exibe-os também
-                if (result.erros && result.erros.length > 0) {
+                messageElement.textContent = result.erro || 'Erro ao processar.';
+                messageElement.className = "message error";
+                if (result.erros?.length > 0) {
                     showErrorCertificates(result.erros);
                 }
             }
         } catch (error) {
-            loading.style.display = 'none';
-            message.style.display = 'block';
-            message.textContent = 'Erro ao processar. Por favor, tente novamente.';
-            message.className = "message error";
+            loadingElement.style.display = 'none';
+            messageElement.textContent = 'Erro na conexão. Por favor, tente novamente.';
+            messageElement.className = "message error";
             console.error(error);
+        } finally {
+            messageElement.style.display = 'block';
         }
     };
 
@@ -122,9 +171,15 @@ document.addEventListener('DOMContentLoaded', function() {
     window.updateFileName = function() {
         const fileInput = document.getElementById('file');
         const fileName = document.getElementById('file-name');
-        fileName.textContent = fileInput.files.length > 0 ? fileInput.files[0].name : 'Selecione um arquivo...';
+        fileName.textContent = fileInput.files[0]?.name || 'Selecione um arquivo...';
     };
 
-    // Adiciona o evento de mudança ao input de arquivo
-    document.getElementById('file').addEventListener('change', updateFileName);
+    // Event listeners
+    if (document.getElementById('file')) {
+        document.getElementById('file').addEventListener('change', updateFileName);
+    }
+    
+    if (form) {
+        form.addEventListener('submit', window.enviarFormulario);
+    }
 });

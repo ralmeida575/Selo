@@ -26,6 +26,8 @@ class ControllerCert extends Controller
         $request->validate([
             'file' => 'required|file|mimes:xlsx,xls',
             'template' => 'required|string',
+            'enviar_email' => 'sometimes|string' // Modificado para string
+
         ]);
     
         $certificadosGerados = [];
@@ -117,12 +119,10 @@ class ControllerCert extends Controller
                     ];
                     continue;
                 }
+
+
     
-                try {
-                    Mail::to($linha[2])->send(new CertificadoEnviado($linha[0], $linha[1], $outputPath, $hash));
-                    Log::info('E-mail enviado para: ' . $linha[2]);
-    
-                    Certificado::create([
+                    $certificado = Certificado::create([
                         'nome' => $linha[0],
                         'cpf' => $cpfNumerico,
                         'email' => $linha[2],
@@ -137,18 +137,25 @@ class ControllerCert extends Controller
                     ]);
                     $certificadosGerados[] = ['nome' => $linha[0], 'curso' => $linha[1], 'outputPath' => $outputPath];
                     $quantidadeCertificados++;
-                } catch (\Exception $e) {
-                    Log::error('Erro ao enviar e-mail para ' . $linha[2] . ': ' . $e->getMessage());
-                    $erros[] = [
-                        'linha' => $index + 2,
-                        'nome' => $linha[0] ?? 'N/A',
-                        'curso' => $linha[1] ?? 'N/A',
-                        'erro' => 'Erro ao enviar e-mail'
-                    ];
-                    continue;
-                }
+                    
+                    ;
+
+                    Log::debug('Valor recebido', [
+    'raw' => $request->input('enviar_email'),
+    'boolean' => $request->boolean('enviar_email'),
+    'type' => gettype($request->input('enviar_email'))
+]);
+
+$deveEnviarEmail = in_array(strtolower($request->input('enviar_email')), ['1', 'true'], true);
+                         
+
+        if ($deveEnviarEmail && !empty($linha[2])) { // Verifica também se tem email
+            $this->enviarEmailCertificado($certificado);    
+        }
+                
+
             }
-    
+            
             EmissaoCertificadoArquivo::create([
                 'nomeArquivo' => $request->file('file')->getClientOriginalName(),
                 'qtdeCertificados' => $quantidadeCertificados,
@@ -170,6 +177,26 @@ class ControllerCert extends Controller
             ], 500);
         }
     }
+
+        private function enviarEmailCertificado(Certificado $certificado)
+    {
+        try {
+            Mail::to($certificado->email)
+                ->send(new CertificadoEnviado(
+                    $certificado->nome,
+                    $certificado->curso,
+                    $certificado->certificado_path,
+                    $certificado->hash
+                ));
+            
+            Log::info('E-mail enviado para: ' . $certificado->email);
+            return true;
+        } catch (\Exception $e) {
+            Log::error('Erro ao enviar e-mail para ' . $certificado->email . ': ' . $e->getMessage());
+            return false;
+        }
+    }
+
     
 
     private function gerarCertificadoPdf($nomeAluno, $curso, $cargaHoraria, $dataConclusao, $unidade, $qrCodeUrl, $templatePath, $hash)
