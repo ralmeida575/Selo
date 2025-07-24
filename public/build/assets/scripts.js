@@ -22,101 +22,57 @@ document.addEventListener('DOMContentLoaded', function() {
         form.insertBefore(emailDiv, form.querySelector('.form-group:last-child'));
     }
 
-    // Exibe notificação com total de certificados e opção de enviar e-mails posteriormente
-    window.showNotification = function(type, quantidade, certificados = []) {
-        notificationContainer.className = 'notification-container ' + (type === 'success' ? 'success' : 'error');
-        notificationContent.innerHTML = '';
+window.showNotification = function(quantidadeCertificados, certificados = []) {
+  notificationContent.innerHTML = `
+    <div class="result-panel">
+      <div class="result-header">
+        <span>✅ Processamento concluído</span>
+        <span class="success-badge">${quantidadeCertificados} Certificados</span>
+      </div>
+      <p>Foram gerados com sucesso.</p>
+    </div>
+  `;
+  
+  // Mantenha a lógica do e-mail se necessário
+  if (certificados.length > 0 && !document.getElementById('enviar_email').checked) {
+    const emailDiv = document.createElement('div');
+    emailDiv.innerHTML = `
+      <div class="notification-detail">E-mails pendentes de envio</div>
+      <button class="btn-enviar-email" onclick="enviarEmailsPosteriormente(${JSON.stringify(certificados)})">
+        Enviar e-mails agora
+      </button>
+    `;
+    notificationContent.appendChild(emailDiv);
+  }
+  
+  notificationContainer.style.display = 'block';
+};
 
-        // Total de certificados
-        const totalDiv = document.createElement('div');
-        totalDiv.style.fontWeight = 'bold';
-        totalDiv.textContent = `✅ ${quantidade} certificados gerados com sucesso!`;
-        notificationContent.appendChild(totalDiv);
-
-        // Se e-mails não foram enviados, mostra opção para enviar depois
-        if (certificados.length > 0 && !document.getElementById('enviar_email').checked) {
-            const emailDiv = document.createElement('div');
-            emailDiv.style.marginTop = '10px';
-            
-            const emailButton = document.createElement('button');
-            emailButton.className = 'btn-enviar-email';
-            emailButton.textContent = 'Enviar e-mails agora';
-            emailButton.onclick = () => enviarEmailsPosteriormente(certificados);
-            
-            emailDiv.appendChild(emailButton);
-            notificationContent.appendChild(emailDiv);
-        }
-
-        notificationContainer.style.display = 'block';
-        addCloseButton(notificationContainer);
-    };
-
-    // Função para enviar e-mails posteriormente
-    async function enviarEmailsPosteriormente(certificados) {
-        const loading = document.createElement('div');
-        loading.textContent = 'Enviando e-mails...';
-        loading.style.margin = '10px 0';
-        notificationContent.appendChild(loading);
-
-        try {
-            const promises = certificados.map(cert => {
-                return fetch('/enviar-email-posterior', {
-                    method: 'POST',
-                    headers: {
-                        'Content-Type': 'application/json',
-                        'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').content
-                    },
-                    body: JSON.stringify({ hash: cert.hash })
-                });
-            });
-
-            const results = await Promise.all(promises);
-            const successful = results.filter(r => r.ok).length;
-
-            loading.textContent = `E-mails enviados: ${successful}/${certificados.length}`;
-            
-            // Remove o botão após o envio
-            const emailButton = notificationContent.querySelector('.btn-enviar-email');
-            if (emailButton) emailButton.remove();
-            
-        } catch (error) {
-            loading.textContent = 'Erro ao enviar e-mails: ' + error.message;
-            console.error(error);
-        }
-    }
-
-    // Exibe erros (mantido igual com pequenas melhorias)
-    window.showErrorCertificates = function(erros) {
-        errorContent.innerHTML = '';
-
-        if (erros?.length > 0) {
-            const ul = document.createElement('ul');
-            erros.forEach(erro => {
-                const li = document.createElement('li');
-                li.innerHTML = `<strong>Linha ${erro.linha}:</strong> ${erro.erro} <br> 
-                                <small>Nome: ${erro.nome}, Curso: ${erro.curso}</small>`;
-                ul.appendChild(li);
-            });
-            errorContent.appendChild(ul);
-        } else {
-            errorContent.textContent = 'Nenhum certificado com erro.';
-        }
-
-        errorContainer.style.display = 'block';
-        addCloseButton(errorContainer);
-    };
-
-    // Adiciona botão de fechamento
-    function addCloseButton(container) {
-        if (!container.querySelector('.close-notification')) {
-            const closeButton = document.createElement('span');
-            closeButton.textContent = '×';
-            closeButton.className = 'close-notification';
-            closeButton.onclick = () => container.style.display = 'none';
-            container.appendChild(closeButton);
-        }
-    }
-
+window.showErrorCertificates = function(erros) {
+  errorContent.innerHTML = `
+    <div class="result-panel">
+      <div class="result-header">
+        <span>⚠️ Erros encontrados</span>
+        <span class="error-badge">${erros.length} erro(s)</span>
+      </div>
+      
+      ${erros.map(erro => `
+        <div class="error-item">
+          <div class="error-title">Linha ${erro.linha}: ${erro.erro}</div>
+          <div class="error-detail">
+            <span>Nome:</span>
+            <span>${erro.nome}</span>
+          </div>
+          <div class="error-detail">
+            <span>Curso:</span>
+            <span>${erro.curso}</span>
+          </div>
+        </div>
+      `).join('')}
+    </div>
+  `;
+  errorContainer.style.display = 'block';
+};
     // Envia o formulário (atualizado para incluir a opção de e-mail)
     window.enviarFormulario = async function(event) {
         event.preventDefault();
@@ -145,7 +101,19 @@ document.addEventListener('DOMContentLoaded', function() {
                 // Filtra apenas certificados com e-mail válido
                 const certificadosComEmail = result.certificados?.filter(c => c.email) || [];
                 
-                showNotification('success', result.quantidadeCertificados, certificadosComEmail);
+                if (response.ok) {
+    messageElement.textContent = result.mensagem || 'Operação concluída!';
+    messageElement.className = "message success-message";   
+    
+    const certificadosComEmail = result.certificados?.filter(c => c.email) || [];
+    
+    // CORREÇÃO AQUI - Remova o primeiro parâmetro 'success' que não é usado
+    showNotification(result.quantidadeCertificados, certificadosComEmail);
+    
+    if (result.erros?.length > 0) {
+        showErrorCertificates(result.erros);
+    }
+}
                 
                 if (result.erros?.length > 0) {
                     showErrorCertificates(result.erros);

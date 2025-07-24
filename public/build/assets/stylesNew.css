@@ -203,6 +203,9 @@ button[type="submit"]:hover {
 
 #error-container {
   border-left-color: var(--error);
+  position: fixed;
+  top: 400px; /* Ajuste esta distância do topo */
+  right: 20px;
 }
 
 #error-container h3 {
@@ -236,4 +239,64 @@ button[type="submit"]:hover {
   .logo {
     max-width: 140px;
   }
+}
+
+/* RESULTADOS - MANTENDO O ESTILO EXISTENTE */
+.result-panel {
+  background: rgba(255, 255, 255, 0.9);
+  border-radius: 8px;
+  padding: 20px;
+  margin-top: 25px;
+  box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+  border-left: 4px solid #252f67;
+  color: black;
+}
+
+.result-header {
+  color: #252f67;
+  font-size: 1.3rem;
+  margin-bottom: 15px;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.success-badge {
+  background-color: #28a745;
+  color: white;
+  padding: 5px 10px;
+  border-radius: 4px;
+  font-weight: 500;
+}
+
+.error-badge {
+  background-color: #dc3545;
+  color: white;
+  padding: 5px 10px;
+  border-radius: 4px;
+  font-weight: 500;
+}
+
+.error-item {
+  background: rgba(220, 53, 69, 0.1);
+  padding: 12px;
+  border-radius: 6px;
+  margin-bottom: 10px;
+}
+
+.error-title {
+  color: #dc3545;
+  font-weight: 600;
+  margin-bottom: 5px;
+}
+
+.error-detail {
+  display: flex;
+  gap: 15px;
+  margin-top: 5px;
+}
+
+.error-detail span:first-child {
+  font-weight: 500;
+  color: #252f67;
 }
