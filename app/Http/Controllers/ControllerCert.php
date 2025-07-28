@@ -17,166 +17,130 @@ use Carbon\Carbon;
 use App\Models\EmissaoCertificadoArquivo;
 use Illuminate\Support\Facades\Mail;
 use App\Mail\CertificadoEnviado;
+use Illuminate\Support\Facades\Validator;
 
 
 class ControllerCert extends Controller
 {
     public function gerarCertificados(Request $request)
-    {
-        $request->validate([
-            'file' => 'required|file|mimes:xlsx,xls',
-            'template' => 'required|string',
-            'enviar_email' => 'sometimes|string' // Modificado para string
+{
+    $request->validate([
+        'file' => 'required|file|mimes:xlsx,xls',
+        'template' => 'required|string',
+        'mapa' => 'required|string', // JSON vindo do front
+        'enviar_email' => 'sometimes|string'
+    ]);
 
+    $certificadosGerados = [];
+    $erros = [];
+    $quantidadeCertificados = 0;
+
+    try {
+        $mapa = json_decode($request->input('mapa'), true); 
+        $dados = LaravelExcel::toArray(new CertificadosImport, $request->file('file'));
+
+        if (empty($dados) || empty($dados[0])) {
+            return response()->json(['erro' => 'O arquivo Excel está vazio ou mal formatado.'], 400);
+        }
+
+        $templatePath = storage_path("app/templates/" . basename($request->template));
+        if (!file_exists($templatePath)) {
+            return response()->json(['erro' => 'O template do certificado não foi encontrado.'], 400);
+        }
+
+        foreach (array_slice($dados[0], 1) as $index => $linha) {
+            if (empty(array_filter($linha))) continue;
+
+            // 🔑 Dados baseados no mapeamento
+            $nome         = trim($linha[$mapa['nome']] ?? '');
+            $curso        = trim($linha[$mapa['curso']] ?? '');
+            $email        = trim($linha[$mapa['email']] ?? '');
+            $cargaHoraria = trim($linha[$mapa['carga_horaria']] ?? '');
+            $dataConclusao = trim($linha[$mapa['data_conclusao']] ?? '');
+            $unidade      = trim($linha[$mapa['unidade']] ?? '');
+            $cpf          = trim($linha[$mapa['cpf']] ?? '');
+
+            // ✅ Validações
+            if (empty($nome) || empty($curso) || empty($cargaHoraria) || empty($dataConclusao) || empty($unidade) || empty($cpf)) {
+                $erros[] = ['linha' => $index + 2, 'nome' => $nome ?: 'N/A', 'curso' => $curso ?: 'N/A', 'erro' => 'Dados insuficientes'];
+                continue;
+            }
+
+            $cpfNumerico = preg_replace('/\D/', '', $cpf);
+            if (strlen($cpfNumerico) !== 11) {
+                $erros[] = ['linha' => $index + 2, 'nome' => $nome, 'curso' => $curso, 'erro' => 'CPF inválido'];
+                continue;
+            }
+
+            // ✅ Validação de data
+            try {
+                if (is_numeric($dataConclusao)) {
+                    $dataConclusao = Date::excelToDateTimeObject($dataConclusao)->format('Y-m-d');
+                }
+                $dataConclusao = Carbon::parse($dataConclusao);
+            } catch (\Exception $e) {
+                $erros[] = ['linha' => $index + 2, 'nome' => $nome, 'curso' => $curso, 'erro' => 'Data inválida'];
+                continue;
+            }
+
+            // ✅ Hash e QRCode
+            $hash = md5($cpfNumerico . $dataConclusao);
+            $qrCodeUrl = url('/verificar_certificado/' . $hash);
+
+            // ✅ Gera PDF definitivo
+            $outputPath = $this->gerarCertificadoPdf($nome, $curso, $cargaHoraria, $dataConclusao, $unidade, $qrCodeUrl, $templatePath, $hash);
+            if (!$outputPath) {
+                $erros[] = ['linha' => $index + 2, 'nome' => $nome, 'curso' => $curso, 'erro' => 'Erro ao gerar PDF'];
+                continue;
+            }
+
+            // ✅ Salva no banco
+            $certificado = Certificado::create([
+                'nome' => $nome,
+                'cpf' => $cpfNumerico,
+                'email' => $email,
+                'curso' => $curso,
+                'carga_horaria' => $cargaHoraria,
+                'unidade' => $unidade,
+                'data_emissao' => now(),
+                'data_conclusao' => $dataConclusao,
+                'qr_code_path' => $qrCodeUrl,
+                'certificado_path' => $outputPath,
+                'hash' => $hash,
+            ]);
+
+            $certificadosGerados[] = ['nome' => $nome, 'curso' => $curso];
+            $quantidadeCertificados++;
+
+            // ✅ Envia e-mail se solicitado
+            $deveEnviarEmail = in_array(strtolower($request->input('enviar_email')), ['1', 'true'], true);
+            if ($deveEnviarEmail && !empty($email)) {
+                $this->enviarEmailCertificado($certificado);
+            }
+        }
+
+        // Log do arquivo processado
+        EmissaoCertificadoArquivo::create([
+            'nomeArquivo' => $request->file('file')->getClientOriginalName(),
+            'qtdeCertificados' => $quantidadeCertificados,
+            'status' => 'pendente',
+            'dataArquivo' => now(),
         ]);
-    
-        $certificadosGerados = [];
-        $erros = []; // Lista para armazenar erros
-        $quantidadeCertificados = 0;
-    
-        try {
-            $dados = LaravelExcel::toArray(new CertificadosImport, $request->file('file'));
-            if (empty($dados) || empty($dados[0])) {
-                return response()->json(['erro' => 'O arquivo Excel está vazio ou mal formatado.'], 400);
-            }
-    
-            $templateNome = basename($request->template);
-            $templatePath = storage_path("app/templates/{$templateNome}");
-            if (!file_exists($templatePath)) {
-                return response()->json(['erro' => 'O template do certificado não foi encontrado.'], 400);
-            }
-    
-            foreach (array_slice($dados[0], 1) as $index => $linha) {
-                Log::info('Linha recebida: ', $linha);
-                if (empty(array_filter($linha))) {
-                    Log::info('Linha vazia, ignorada.');
-                    continue;
-                }
-    
-                if (!isset($linha[0], $linha[1], $linha[3], $linha[4], $linha[5], $linha[6]) || 
-                    empty($linha[0]) || empty($linha[1]) || empty($linha[3]) || empty($linha[4]) || empty($linha[5]) || empty($linha[6])) {
-                    Log::info('Linha com dados insuficientes: ', $linha);
-                    $erros[] = [
-                        'linha' => $index + 2, // Adiciona 2 para representar a linha correta no Excel (começando em 1 e considerando o cabeçalho)
-                        'nome' => $linha[0] ?? 'N/A',
-                        'curso' => $linha[1] ?? 'N/A',
-                        'erro' => 'Dados insuficientes'
-                    ];
-                    continue;
-                }
-    
-                $cpf = trim($linha[6]);
-                $dataConclusao = trim($linha[4]);
-                $cpfNumerico = preg_replace('/\D/', '', $cpf);
-                if (strlen($cpfNumerico) !== 11) {
-                    $erros[] = [
-                        'linha' => $index + 2,
-                        'nome' => $linha[0] ?? 'N/A',
-                        'curso' => $linha[1] ?? 'N/A',
-                        'erro' => 'CPF inválido'
-                    ];
-                    continue;
-                }
-    
-                try {
-                    if (is_numeric($dataConclusao)) {
-                        $dataConclusao = Date::excelToDateTimeObject($dataConclusao)->format('Y-m-d');
-                        $dataConclusao = Carbon::createFromFormat('Y-m-d', $dataConclusao);
-                    } else {
-                        $dataConclusao = Carbon::createFromFormat('d/m/Y', $dataConclusao);
-                    }
-                } catch (\Exception $e) {
-                    $erros[] = [
-                        'linha' => $index + 2,
-                        'nome' => $linha[0] ?? 'N/A',
-                        'curso' => $linha[1] ?? 'N/A',
-                        'erro' => 'Data de conclusão inválida'
-                    ];
-                    continue;
-                }
-    
-                $concatenacao = $cpfNumerico . $dataConclusao;
-                $hash = md5($concatenacao);
-                $qrCodeUrl = url('/verificar_certificado/' . $hash);
-    
-                $outputPath = $this->gerarCertificadoPdf(
-                    $linha[0], 
-                    $linha[1], 
-                    $linha[3], 
-                    $dataConclusao, 
-                    $linha[5], 
-                    $qrCodeUrl, 
-                    $templatePath,
-                    $hash
-                );
-    
-                if (!$outputPath) {
-                    $erros[] = [
-                        'linha' => $index + 2,
-                        'nome' => $linha[0] ?? 'N/A',
-                        'curso' => $linha[1] ?? 'N/A',
-                        'erro' => 'Erro ao gerar PDF'
-                    ];
-                    continue;
-                }
 
-
-    
-                    $certificado = Certificado::create([
-                        'nome' => $linha[0],
-                        'cpf' => $cpfNumerico,
-                        'email' => $linha[2],
-                        'curso' => $linha[1],
-                        'carga_horaria' => $linha[3],
-                        'unidade' => $linha[5],
-                        'data_emissao' => now(),
-                        'data_conclusao' => $dataConclusao,
-                        'qr_code_path' => $qrCodeUrl,
-                        'certificado_path' => $outputPath,
-                        'hash' => $hash,
-                    ]);
-                    $certificadosGerados[] = ['nome' => $linha[0], 'curso' => $linha[1], 'outputPath' => $outputPath];
-                    $quantidadeCertificados++;
-                    
-                    ;
-
-                    Log::debug('Valor recebido', [
-    'raw' => $request->input('enviar_email'),
-    'boolean' => $request->boolean('enviar_email'),
-    'type' => gettype($request->input('enviar_email'))
-]);
-
-$deveEnviarEmail = in_array(strtolower($request->input('enviar_email')), ['1', 'true'], true);
-                         
-
-        if ($deveEnviarEmail && !empty($linha[2])) { // Verifica também se tem email
-            $this->enviarEmailCertificado($certificado);    
-        }
-                
-
-            }
-            
-            EmissaoCertificadoArquivo::create([
-                'nomeArquivo' => $request->file('file')->getClientOriginalName(),
-                'qtdeCertificados' => $quantidadeCertificados,
-                'status' => 'pendente',
-                'dataArquivo' => now(),
-            ]);
-    
-            return response()->json([
-                'status' => 'success', 
-                'mensagem' => '✅ Certificados gerados!',
-                'certificados' => $certificadosGerados,
-                'quantidadeCertificados' => $quantidadeCertificados,
-                'erros' => $erros // Retorna a lista de erros
-            ]);
-        } catch (\Exception $e) {
-            return response()->json([
-                'status' => 'error',
-                'mensagem' => 'Erro: ' . $e->getMessage()
-            ], 500);
-        }
+        return response()->json([
+            'status' => 'success',
+            'mensagem' => '✅ Certificados gerados com sucesso!',
+            'quantidadeCertificados' => $quantidadeCertificados,
+            'erros' => $erros,
+        ]);
+    } catch (\Exception $e) {
+        return response()->json([
+            'status' => 'error',
+            'mensagem' => 'Erro: ' . $e->getMessage()
+        ], 500);
     }
+}
+
 
         private function enviarEmailCertificado(Certificado $certificado)
     {
@@ -271,4 +235,77 @@ $deveEnviarEmail = in_array(strtolower($request->input('enviar_email')), ['1', '
 
         return Storage::disk('s3')->download($certificado->certificado_path);
     }
+
+    
+
+    public function lerColunasExcel(Request $request)
+{
+    // Verifique explicitamente por erros de validação
+    $validator = Validator::make($request->all(), [
+        'file' => 'required|file|mimes:xlsx,xls|max:10240'
+    ]);
+
+    if ($validator->fails()) {
+        return response()->json([
+            'status' => 'error',
+            'mensagem' => $validator->errors()->first()
+        ], 422);
+    }
+
+    try {
+        // Force o tratamento como JSON
+        $dados = LaravelExcel::toArray(new CertificadosImport, $request->file('file'));
+
+        return response()->json([
+            'status' => 'success',
+            'colunas' => $dados[0][0] ?? []
+        ]);
+
+    } catch (\Exception $e) {
+        Log::error("Erro ao processar Excel: " . $e->getMessage());
+        return response()->json([
+            'status' => 'error',
+            'mensagem' => 'Erro ao processar arquivo. Verifique o formato.'
+        ], 500);
+    }
+}
+
+public function previewCertificado(Request $request)
+{
+    try {
+        $request->validate([
+            'template' => 'required|string',
+            'nome' => 'required|string',
+            'curso' => 'required|string',
+            'carga_horaria' => 'required|string',
+            'data_conclusao' => 'required|string',
+            'unidade' => 'required|string',
+        ]);
+
+        // Gera um hash fictício para preview
+        $hash = 'preview-' . uniqid();
+        
+        $outputPath = $this->gerarCertificadoPdf(
+            $request->nome,
+            $request->curso,
+            $request->carga_horaria,
+            $request->data_conclusao,
+            $request->unidade,
+            url('/verificar_certificado/' . $hash),
+            storage_path("app/templates/" . basename($request->template)),
+            $hash
+        );
+
+        return response()->file($outputPath)->deleteFileAfterSend();
+
+    } catch (\Exception $e) {
+        Log::error("Erro no preview: " . $e->getMessage());
+        return response()->json([
+            'status' => 'error',
+            'mensagem' => 'Erro ao gerar pré-visualização'
+        ], 500);
+    }
+}
+
+
 }
