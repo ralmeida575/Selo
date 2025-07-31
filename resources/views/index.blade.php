@@ -54,34 +54,46 @@
     }
 
     /* Colunas do Excel */
-    .mapping-columns { 
-      display: flex; 
-      flex-wrap: wrap; 
-      gap: 8px; 
-      margin-top: 10px; 
-      background: #f8f8f8; 
-      padding: 12px; 
-      border-radius: 8px; 
-      min-height: 80px;
-      max-height: 200px;
-      overflow-y: auto;
-    }
-    .column-item { 
-      padding: 6px 12px; 
-      background: #e5e7eb; 
-      border-radius: 6px; 
-      cursor: grab; 
-      font-size: 13px; 
-      transition: all 0.2s;
-      user-select: none;
-    }
-    .column-item:hover {
-      background: #d1d5db;
-      transform: translateY(-2px);
-    }
-    .column-item:active {
-      cursor: grabbing;
-    }
+    /* Colunas do Excel - Modificado para exibir em coluna */
+/* Colunas do Excel - Estilo lista vertical */
+.mapping-columns {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  margin-top: 10px;
+  background: #f8f8f8;
+  padding: 12px;
+  border-radius: 8px;
+  min-height: 80px;
+  max-height: 300px; /* Aumentei para caber mais itens */
+  overflow-y: auto;
+  width: 100%;
+}
+
+.column-item {
+  width: 100%;
+  padding: 8px 12px;
+  background: #e5e7eb;
+  border-radius: 6px;
+  cursor: grab;
+  font-size: 13px;
+  transition: all 0.2s;
+  user-select: none;
+  box-sizing: border-box;
+  text-align: left;
+  text-transform: uppercase; /* Opcional - para deixar em caixa alta como na imagem */
+  font-weight: normal; /* Remove o negrito se existir */
+  border-left: 3px solid #2563eb; /* Adiciona borda lateral como na imagem */
+}
+
+.column-item:hover {
+  background: #d1d5db;
+  transform: translateY(-1px);
+}
+
+.column-item:active {
+  cursor: grabbing;
+}
 
     /* ==== PREVIEW ==== */
     .preview-column { 
@@ -547,36 +559,43 @@ Certificamos que [NOME] concluiu o curso de [CURSO], com carga horária de [CARG
 
 function renderTemplateThumbnails() {
   const thumbnailsContainer = document.getElementById('template-thumbnails');
-  const templates = Array.from(templateSelect.options);
+  const templateSelect = document.getElementById('template'); // Garantir que existe
+  
+  if (!thumbnailsContainer || !templateSelect) {
+    console.error('Elementos não encontrados!');
+    return;
+  }
 
   thumbnailsContainer.innerHTML = '';
 
-  templates.forEach(option => {
+  Array.from(templateSelect.options).forEach(option => {
     const templatePath = option.value;
-
-    // Criar miniatura como DIV com background
     const thumb = document.createElement('div');
-    thumb.classList.add('template-thumb');
+    thumb.className = 'template-thumb';
     thumb.style.backgroundImage = `url('${templatePath}')`;
+    thumb.title = option.text;
 
-    // Marca a selecionada
+    // Tratamento de erro
+    thumb.addEventListener('error', () => {
+      thumb.style.backgroundImage = 'none';
+      thumb.innerHTML = `<span>${option.text}</span>`;
+      thumb.style.backgroundColor = '#f0f0f0';
+    });
+
     if (templateSelect.value === option.value) {
       thumb.classList.add('selected');
     }
 
-    // Ao clicar, troca template
     thumb.addEventListener('click', () => {
       templateSelect.value = option.value;
       atualizarPreview();
-
-      thumbnailsContainer.querySelectorAll('.template-thumb').forEach(t => t.classList.remove('selected'));
+      document.querySelectorAll('.template-thumb.selected').forEach(el => el.classList.remove('selected'));
       thumb.classList.add('selected');
     });
 
     thumbnailsContainer.appendChild(thumb);
   });
 }
-
 
   // Configura todos os event listeners
   function setupEventListeners() {
