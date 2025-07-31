@@ -137,26 +137,143 @@
       transform: scale(1.02);
     }
 
-    /* Controles de estilo */
-    .style-controls { 
-      margin-top: 20px; 
-      background: #f9fafb;
-      padding: 15px;
+    /* === CONTROLES COMPACTOS === */
+    .compact-toolbar {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      padding: 8px 12px;
+      background: #f8f9fa;
       border-radius: 8px;
+      margin-bottom: 15px;
+      flex-wrap: wrap;
     }
-    .style-row { 
-      display: flex; 
-      gap: 15px; 
-      margin-bottom: 10px; 
+  .font-control-group {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin-bottom: 10px;
+}
+
+.font-control-group label {
+  font-size: 13px;
+  color: #1a2a6c;
+  font-weight: 500;
+  white-space: nowrap;
+}
+
+#font-selector, #font-size {
+  padding: 4px;
+  font-size: 13px;
+  border: 1px solid #ccc;
+  border-radius: 4px;
+}
+
+#font-size-range {
+  -webkit-appearance: none;
+  height: 4px;
+  background: #ccc;
+  border-radius: 4px;
+  outline: none;
+  flex: 1;
+}
+
+#font-size-range::-webkit-slider-thumb {
+  -webkit-appearance: none;
+  width: 14px;
+  height: 14px;
+  background: #001f66;
+  border-radius: 50%;
+  cursor: pointer;
+}
+
+#font-color {
+  width: 28px;
+  height: 28px;
+  padding: 0;
+  border: none;
+  border-radius: 50%;
+  cursor: pointer;
+}
+
+    .compact-select {
+      padding: 5px 8px;
+      border: 1px solid #ddd;
+      border-radius: 4px;
+      font-size: 13px;
+      min-width: 80px;
     }
-    .style-group { 
-      flex: 1; 
+    
+    .compact-input {
+      width: 50px;
+      padding: 5px;
+      border: 1px solid #ddd;
+      border-radius: 4px;
+      text-align: center;
     }
-    .controls { 
-      display: flex; 
-      gap: 10px; 
-      margin-top: 15px; 
+    
+    .compact-color {
+      width: 30px;
+      height: 30px;
+      padding: 2px;
     }
+    
+    .compact-buttons {
+      display: flex;
+      gap: 5px;
+      margin-left: auto;
+    }
+    
+    .compact-button {
+      padding: 5px 10px;
+      font-size: 12px;
+      min-width: 70px;
+      border-radius: 4px;
+      cursor: pointer;
+      border: 1px solid #d1d5db;
+      background: #fff;
+      transition: all 0.2s;
+    }
+    
+    .compact-button:hover {
+      background: #f3f4f6;
+    }
+    
+    .compact-button.secondary {
+      background: #f3f4f6;
+    }
+    
+    .compact-button.danger {
+      background: #fee2e2;
+      color: #dc2626;
+      border-color: #fca5a5;
+    }
+    
+    .compact-button.danger:hover {
+      background: #fecaca;
+    }
+    
+    .text-format-buttons {
+      display: flex;
+      gap: 3px;
+    }
+    
+    .text-format-buttons button {
+      width: 28px;
+      height: 28px;
+      padding: 0;
+      font-size: 12px;
+      border-radius: 4px;
+      border: 1px solid #d1d5db;
+      background: #fff;
+      cursor: pointer;
+    }
+    
+    .text-format-buttons button:hover {
+      background: #f3f4f6;
+    }
+
+    /* (Mantido o restante do CSS original) */
     button { 
       background: #2563eb; 
       color: #fff; 
@@ -192,20 +309,6 @@
     }
     button.danger:hover {
       background: #b91c1c;
-    }
-
-    /* Text toolbar */
-    .text-toolbar {
-      display: flex;
-      gap: 5px;
-      margin-bottom: 8px;
-    }
-    .text-toolbar button {
-      flex: none;
-      width: 32px;
-      height: 32px;
-      padding: 0;
-      border-radius: 4px;
     }
 
     /* Toast notifications */
@@ -268,6 +371,30 @@
         padding: 15px;
       }
     }
+.template-thumbnails {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  margin-top: 10px;
+}
+
+.template-thumb {
+  width: 100%;
+  height: 70px;
+  background-size: cover;
+  background-position: center;
+  border: 2px solid transparent;
+  border-radius: 6px;
+  cursor: pointer;
+  transition: border-color 0.2s;
+}
+
+.template-thumb.selected {
+  border-color: #2563eb;
+}
+
+
+
   </style>
 </head>
 <body>
@@ -311,73 +438,52 @@
           <option value="/storage/templates/template_certificado_2.jpg">Pós-Odontologia</option>
           <option value="/storage/templates/template_certificado_3.jpg">SLMandic</option>
         </select>
-      </div>
+        <div id="template-thumbnails" class="template-thumbnails"></div>
+        </div>
     </div>
 
-    <!-- PREVIEW + CONTROLES -->
+    <!-- PREVIEW + CONTROLES COMPACTOS -->
     <div class="preview-column">
       <div class="preview-wrapper">
-        <!-- Controles de estilo -->
-        <div class="style-controls">
-          <div class="style-row">
-            <div class="style-group">
-              <label>Fontes:</label>
-              <select id="font-selector">
-                <option value="Arial">Arial</option>
-                <option value="Times New Roman">Times New Roman</option>
-                <option value="Georgia">Georgia</option>
-                <option value="Verdana">Verdana</option>
-                <option value="Courier New">Courier New</option>
-              </select>
-            </div>
-            
-            <div class="style-group">
-              <label>Tamanho da Fonte:</label>
-              <input type="number" id="font-size" min="8" max="100" value="24">
-            </div>
-            
-            <div class="style-group">
-              <label>Cor do Texto:</label>
-              <input type="color" id="font-color" value="#000000">
-            </div>
+        <!-- Nova barra de controles compacta -->
+        <div class="compact-toolbar">
+       <div class="font-control-group">
+  <label for="font-selector">Fonte</label>
+  <select id="font-selector">
+    <option value="Work Sans">Work Sans</option>
+    <option value="Roboto">Roboto</option>
+    <option value="Arial">Arial</option>
+  </select>
+</div>
+
+<div class="font-control-group">
+  <label for="font-color">Cor</label>
+  <input type="color" id="font-color" value="#000000">
+</div>
+
+<div class="font-control-group">
+  <label for="font-size">Tamanho da Fonte</label>
+  <input type="range" id="font-size-range" min="8" max="52" value="24">
+  <input type="number" id="font-size" min="8" max="52" value="24">
+</div>
+
+          
+          <div class="text-format-buttons">
+            <button data-command="bold" title="Negrito"><b>B</b></button>
+            <button data-command="italic" title="Itálico"><i>I</i></button>
+            <button data-command="underline" title="Sublinhado"><u>S</u></button>
           </div>
           
-          <div class="controls">
-            <button id="auto-position" title="Reposiciona os campos automaticamente">
-              <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-                <rect x="3" y="3" width="7" height="7"></rect>
-                <rect x="14" y="3" width="7" height="7"></rect>
-                <rect x="14" y="14" width="7" height="7"></rect>
-                <rect x="3" y="14" width="7" height="7"></rect>
-              </svg>
-              Auto-Posicionar
-            </button>
-            <button id="delete-field" class="danger" title="Remove o campo selecionado">
-              <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-                <polyline points="3 6 5 6 21 6"></polyline>
-                <path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"></path>
-              </svg>
-              Remover
-            </button>
-            <button id="save-layout" class="secondary" title="Salva o layout atual">
-              <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-                <path d="M19 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11l5 5v11a2 2 0 0 1-2 2z"></path>
-                <polyline points="17 21 17 13 7 13 7 21"></polyline>
-                <polyline points="7 3 7 8 15 8"></polyline>
-              </svg>
-              Salvar
-            </button>
+          <div class="compact-buttons">
+            <button id="auto-position" class="compact-button" title="Auto-Posicionar">Posicionar</button>
+            <button id="delete-field" class="compact-button danger" title="Remover">Remover</button>
+            <button id="save-layout" class="compact-button secondary" title="Salvar">Salvar</button>
           </div>
         </div>
 
         <!-- Editor de texto -->
         <div style="margin-top: 20px;">
           <label for="descricao-certificado">Texto do Certificado:</label>
-          <div class="text-toolbar">
-            <button data-command="bold" title="Negrito"><b>B</b></button>
-            <button data-command="italic" title="Itálico"><i>I</i></button>
-            <button data-command="underline" title="Sublinhado"><u>S</u></button>
-          </div>
           <textarea id="descricao-certificado" rows="4" style="width: 100%; padding: 10px; border: 1px solid #d1d5db; border-radius: 6px; resize: vertical;">
 Certificamos que [NOME] concluiu o curso de [CURSO], com carga horária de [CARGA HORARIA], na [UNIDADE].
           </textarea>
@@ -436,7 +542,41 @@ Certificamos que [NOME] concluiu o curso de [CURSO], com carga horária de [CARG
     atualizarPreview();
     setupDragAndDrop();
     setupTextEditor();
+    renderTemplateThumbnails(); // 🔥 Chama a função que cria as miniaturas
+});
+
+function renderTemplateThumbnails() {
+  const thumbnailsContainer = document.getElementById('template-thumbnails');
+  const templates = Array.from(templateSelect.options);
+
+  thumbnailsContainer.innerHTML = '';
+
+  templates.forEach(option => {
+    const templatePath = option.value;
+
+    // Criar miniatura como DIV com background
+    const thumb = document.createElement('div');
+    thumb.classList.add('template-thumb');
+    thumb.style.backgroundImage = `url('${templatePath}')`;
+
+    // Marca a selecionada
+    if (templateSelect.value === option.value) {
+      thumb.classList.add('selected');
+    }
+
+    // Ao clicar, troca template
+    thumb.addEventListener('click', () => {
+      templateSelect.value = option.value;
+      atualizarPreview();
+
+      thumbnailsContainer.querySelectorAll('.template-thumb').forEach(t => t.classList.remove('selected'));
+      thumb.classList.add('selected');
+    });
+
+    thumbnailsContainer.appendChild(thumb);
   });
+}
+
 
   // Configura todos os event listeners
   function setupEventListeners() {
@@ -447,6 +587,19 @@ Certificamos que [NOME] concluiu o curso de [CURSO], com carga horária de [CARG
     deleteFieldBtn.addEventListener('click', deleteSelectedElement);
     autoPositionBtn.addEventListener('click', autoPositionFields);
     addDescricaoBtn.addEventListener('click', () => addDescricaoTexto());
+
+    // 🔥 Sincronização entre o range e o input numérico de tamanho da fonte
+  const fontSizeRange = document.getElementById('font-size-range');
+  if (fontSizeRange) {
+    fontSizeRange.addEventListener('input', () => {
+      fontSizeInput.value = fontSizeRange.value;
+      updateSelectedElementStyle(); // atualiza em tempo real
+    });
+    fontSizeInput.addEventListener('input', () => {
+      fontSizeRange.value = fontSizeInput.value;
+      updateSelectedElementStyle();
+    });
+  }
     
     // Upload de arquivo
     excelUpload.addEventListener('change', handleFileUpload);
@@ -517,11 +670,13 @@ Certificamos que [NOME] concluiu o curso de [CURSO], com carga horária de [CARG
     } catch (err) {
       console.error(err);
       excelColumns.innerHTML = '<p style="color:#ef4444;font-size:12px;text-align:center;">Erro ao processar o arquivo.</p>';
-      showToast('Erro ao processar o arquivo', 'error');
+        showToast('Erro ao processar o arquivo', 'error');
     } finally {
       hideLoading();
     }
   }
+
+
 
   // Mapeia automaticamente os campos do Excel
   function mapExcelFields(columns) {
@@ -781,13 +936,41 @@ Certificamos que [NOME] concluiu o curso de [CURSO], com carga horária de [CARG
 
   // Configura o editor de texto
   function setupTextEditor() {
-    const toolbar = document.createElement('div');
-    toolbar.className = 'text-toolbar';
-    toolbar.innerHTML = `
-      <button data-command="bold" title="Negrito"><b>B</b></button>
-      <button data-command="italic" title="Itálico"><i>I</i></button>
-      <button data-command="underline" title="Sublinhado"><u>S</u></button>
-    `;
+
+
+// Agora estilizar cada botão individualmente:
+const buttons = toolbar.querySelectorAll('button');
+buttons.forEach(button => {
+  button.style.all = 'unset'; // reseta estilos padrões do botão
+  button.style.cursor = 'pointer';
+  button.style.padding = '4px 7px';
+  button.style.fontWeight = 'bold';
+  button.style.fontSize = '14px';
+  button.style.textAlign = 'center';
+  button.style.borderRadius = '2px';
+  button.style.userSelect = 'none';
+  button.style.border = '1px solid transparent';
+  button.style.transition = 'background-color 0.2s, border-color 0.2s';
+
+  // Adicionar efeito hover e active usando eventos JS (porque :hover CSS não funciona aqui)
+  button.addEventListener('mouseenter', () => {
+    button.style.backgroundColor = '#ddd';
+    button.style.borderColor = '#999';
+  });
+  button.addEventListener('mouseleave', () => {
+    button.style.backgroundColor = 'transparent';
+    button.style.borderColor = 'transparent';
+  });
+  button.addEventListener('mousedown', () => {
+    button.style.backgroundColor = '#bbb';
+    button.style.borderColor = '#666';
+  });
+  button.addEventListener('mouseup', () => {
+    button.style.backgroundColor = '#ddd';
+    button.style.borderColor = '#999';
+  });
+});
+
     descricaoTextarea.parentNode.insertBefore(toolbar, descricaoTextarea);
     
     toolbar.addEventListener('click', e => {
@@ -856,6 +1039,8 @@ Certificamos que [NOME] concluiu o curso de [CURSO], com carga horária de [CARG
   function toggleSidebar() {
     document.getElementById('form-column').classList.toggle('collapsed');
   }
+
+  
   </script>
 </body>
 </html>
