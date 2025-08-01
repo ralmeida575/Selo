@@ -150,4 +150,15 @@ window.showErrorCertificates = function(erros) {
     if (form) {
         form.addEventListener('submit', window.enviarFormulario);
     }
+
+    if (document && document.getElementById('enviar_email')) {
+        document.getElementById('enviar_email').addEventListener('change', function() {
+            if (this.checked) {
+                messageElement.textContent = 'E-mails serão enviados para os participantes.';
+            } else {
+                messageElement.textContent = 'E-mails não serão enviados.';
+            }
+            messageElement.style.display = 'block';
+        });
+    }
 });

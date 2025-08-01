@@ -487,6 +487,11 @@
           </div>
           
           <div class="compact-buttons">
+            <label for="prompt">Personalizar texto do certificado:</label>
+<textarea id="prompt" name="prompt" rows="4" placeholder="Digite aqui como quer que o certificado seja gerado..."></textarea>
+
+<button onclick="gerarTextoCertificado()">Gerar Texto</button>
+
             <button id="auto-position" class="compact-button" title="Auto-Posicionar">Posicionar</button>
             <button id="delete-field" class="compact-button danger" title="Remover">Remover</button>
             <button id="save-layout" class="compact-button secondary" title="Salvar">Salvar</button>
@@ -499,6 +504,8 @@
           <textarea id="descricao-certificado" rows="4" style="width: 100%; padding: 10px; border: 1px solid #d1d5db; border-radius: 6px; resize: vertical;">
 Certificamos que [NOME] concluiu o curso de [CURSO], com carga horária de [CARGA HORARIA], na [UNIDADE].
           </textarea>
+          @csrf
+            <input type="hidden" name="descricao" id="descricao-certificado-input" value="">
           <button id="add-descricao" style="margin-top: 10px; width:100%;">
             <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
               <line x1="12" y1="5" x2="12" y2="19"></line>
@@ -644,6 +651,12 @@ function renderTemplateThumbnails() {
     
     // Seleção de elementos no preview
     preview.addEventListener('click', handlePreviewClick);
+    
+    const gerarTextoBtn = document.getElementById('gerar-texto-btn');
+if (gerarTextoBtn) {
+  gerarTextoBtn.addEventListener('click', gerarTextoCertificado);
+}
+
   }
 
   // Atualiza o template de fundo
@@ -955,6 +968,7 @@ function renderTemplateThumbnails() {
 
   // Configura o editor de texto
   function setupTextEditor() {
+    
 
 
 // Agora estilizar cada botão individualmente:
@@ -1059,7 +1073,82 @@ buttons.forEach(button => {
     document.getElementById('form-column').classList.toggle('collapsed');
   }
 
-  
+  function excelSerialToDate(serial) {
+  const excelEpoch = new Date(1899, 11, 30);
+  const date = new Date(excelEpoch.getTime() + serial * 86400000);
+  return date.toISOString().split('T')[0]; // Exemplo: 2025-08-01
+}
+
+  async function gerarTextoCertificado() {
+  if (!state.excelData) {
+    console.error('state.excelData está vazio ou indefinido');
+  } else if (!state.excelData.dados) {
+    console.error('state.excelData.dados não existe');
+  } else if (!state.excelData.dados.length) {
+    console.error('state.excelData.dados está vazio');
+  } else {
+    console.log('Dados do Excel:', state.excelData.dados);
+  }
+
+  try {
+    console.log("state.excelData:", state.excelData);
+
+    if (!state.excelData || !state.excelData.dados || !state.excelData.dados.length) {
+      showToast("Nenhum dado de Excel encontrado!", "error");
+      return;
+    }
+
+    const aluno = state.excelData.dados[0];
+    console.log("aluno:", aluno);
+
+const payload = {
+  nome: aluno['nome '].trim(),
+  curso: aluno['curso'].trim(),
+  carga_horaria: aluno['carga horaria'].toString(),
+  data_conclusao: excelSerialToDate(aluno['data conclusão']),
+  unidade: aluno['unidade '].trim(),
+  historico: state.historico || []
+};
+
+    console.log("📤 Enviando payload:", payload);
+
+    const response = await fetch("/certificados/gerar-texto", {
+      method: "POST",
+      headers: {
+        "Accept": "application/json",
+        "Content-Type": "application/json",
+        "X-CSRF-TOKEN": document.querySelector('meta[name="csrf-token"]').content,
+      },
+      body: JSON.stringify(payload),
+    });
+
+    console.log("Status da resposta:", response.status);
+
+    const textResponse = await response.text();
+    console.log("Resposta bruta do servidor:", textResponse);
+
+    let data;
+    try {
+      data = JSON.parse(textResponse);
+    } catch {
+      throw new Error("Resposta não é JSON válido");
+    }
+
+    console.log("📥 Resposta JSON:", data);
+
+    if (data.status === "success") {
+      document.querySelector("#descricao-certificado").value = data.texto;
+      addDescricaoTexto();
+      showToast("Texto do certificado gerado com sucesso!");
+    } else {
+      showToast("Erro: " + data.mensagem, "error");
+    }
+  } catch (err) {
+    console.error("❌ Erro na requisição:", err);
+    showToast("Falha na comunicação com o servidor", "error");
+  }
+}
+
   </script>
 </body>
 </html>

@@ -18,6 +18,8 @@ use App\Models\EmissaoCertificadoArquivo;
 use Illuminate\Support\Facades\Mail;
 use App\Mail\CertificadoEnviado;
 use Illuminate\Support\Facades\Validator;
+use Illuminate\Support\Facades\Http;
+use OpenAI;
 
 
 class ControllerCert extends Controller
@@ -240,7 +242,6 @@ class ControllerCert extends Controller
 
     public function lerColunasExcel(Request $request)
 {
-    // Verifique explicitamente por erros de validação
     $validator = Validator::make($request->all(), [
         'file' => 'required|file|mimes:xlsx,xls|max:10240'
     ]);
@@ -253,12 +254,28 @@ class ControllerCert extends Controller
     }
 
     try {
-        // Force o tratamento como JSON
         $dados = LaravelExcel::toArray(new CertificadosImport, $request->file('file'));
+
+        if (empty($dados) || !isset($dados[0])) {
+            return response()->json([
+                'status' => 'error',
+                'mensagem' => 'Arquivo vazio ou inválido'
+            ], 400);
+        }
+
+        $planilha = $dados[0];          // Primeira planilha
+        $colunas = $planilha[0];        // Primeira linha - cabeçalho
+        $linhas = array_slice($planilha, 1);  // Restante das linhas - dados
+
+        // Transformar dados em array associativo usando as colunas como chave
+        $dadosAssociativos = array_map(function($linha) use ($colunas) {
+            return array_combine($colunas, $linha);
+        }, $linhas);
 
         return response()->json([
             'status' => 'success',
-            'colunas' => $dados[0][0] ?? []
+            'colunas' => $colunas,
+            'dados' => $dadosAssociativos,
         ]);
 
     } catch (\Exception $e) {
@@ -269,6 +286,7 @@ class ControllerCert extends Controller
         ], 500);
     }
 }
+
 
 public function previewCertificado(Request $request)
 {
@@ -308,4 +326,71 @@ public function previewCertificado(Request $request)
 }
 
 
+public function gerarTextoCertificado(Request $request)
+{
+    $request->validate([
+        'nome' => 'required|string',
+        'curso' => 'required|string',
+        'carga_horaria' => 'required|string',
+        'data_conclusao' => 'required|date_format:Y-m-d',
+        'unidade' => 'required|string',
+    ]);
+
+    try {
+        // Monta o prompt inicial
+        $prompt = "Escreva um texto formal de certificado de conclusão de curso, como no exemplo:
+        Exemplo:
+        'Certificamos que João Silva concluiu o curso de Administração, com carga horária de 200 horas, realizado na unidade Campinas, em 20/07/2025.'
+
+        Agora gere para:
+        Nome: {$request->nome}
+        Curso: {$request->curso}
+        Carga horária: {$request->carga_horaria} horas
+        Data de conclusão: {$request->data_conclusao}
+        Unidade: {$request->unidade}";
+
+        // Histórico de mensagens (pode vir do frontend ou sessão)
+        $historico = $request->input('historico', []);
+
+        $messages = array_merge(
+            [['role' => 'system', 'content' => 'Você é um assistente que gera textos formais de certificados.']],
+            $historico,
+            [['role' => 'user', 'content' => $prompt]]
+        );
+
+        // Chama a API da OpenAI usando o endpoint de chat
+        $client = OpenAI::client(env('OPENAI_API_KEY'));
+        $response = $client->chat()->create([
+            'model' => 'gpt-4o-mini',
+            'messages' => $messages,
+            'max_tokens' => 200,
+        ]);
+
+        $textoGerado = trim($response->choices[0]->message->content);
+
+        // Atualiza histórico para retorno
+        $historicoAtualizado = array_merge($historico, [
+            ['role' => 'user', 'content' => $prompt],
+            ['role' => 'assistant', 'content' => $textoGerado],
+        ]);
+
+        return response()->json([
+            'status'    => 'success',
+            'texto'     => $textoGerado,
+            'historico' => $historicoAtualizado,
+        ]);
+    } catch (\Exception $e) {
+        \Log::error("Erro ao gerar texto do certificado: " . $e->getMessage());
+
+        // Fallback: texto padrão caso a IA falhe
+        return response()->json([
+            'status' => 'success',
+            'texto' => "Certificamos que {$request->nome} concluiu o curso de {$request->curso}, com carga horária de {$request->carga_horaria} horas, realizado na unidade {$request->unidade}, em {$request->data_conclusao}.",
+        ]);
+    }
 }
+
+
+
+
+}       
