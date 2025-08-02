@@ -5,732 +5,235 @@
   <meta name="csrf-token" content="{{ csrf_token() }}">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Editor de Certificados</title>
-  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&display=swap" rel="stylesheet">
+  <script src="https://cdn.tailwindcss.com"></script>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
   <style>
-    :root {
-      /* Cores */
-      --primary-50: #eff6ff;
-      --primary-100: #dbeafe;
-      --primary-500: #3b82f6;
-      --primary-600: #2563eb;
-      --primary-700: #1d4ed8;
-      --gray-50: #f9fafb;
-      --gray-100: #f3f4f6;
-      --gray-200: #e5e7eb;
-      --gray-300: #d1d5db;
-      --gray-400: #9ca3af;
-      --gray-500: #6b7280;
-      --gray-600: #4b5563;
-      --gray-700: #374151;
-      --gray-900: #111827;
-      --red-500: #ef4444;
-      --red-600: #dc2626;
-      --green-500: #10b981;
-      --yellow-500: #f59e0b;
-      
-      /* Espaçamentos */
-      --space-1: 4px;
-      --space-2: 8px;
-      --space-3: 12px;
-      --space-4: 16px;
-      --space-5: 20px;
-      --space-6: 24px;
-      --space-8: 32px;
-      
-      /* Bordas */
-      --radius-sm: 4px;
-      --radius-md: 6px;
-      --radius-lg: 8px;
-      --radius-xl: 12px;
-      
-      /* Sombras */
-      --shadow-sm: 0 1px 2px 0 rgba(0, 0, 0, 0.05);
-      --shadow-md: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
-      --shadow-lg: 0 10px 15px -3px rgba(0, 0, 0, 0.1);
-    }
-
-    * {
-      margin: 0;
-      padding: 0;
-      box-sizing: border-box;
-    }
-
-    body {
-      font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
-      color: var(--gray-900);
-      background: var(--gray-100);
-      display: flex;
-      height: 100vh;
-      overflow: hidden;
-    }
-
-    /* ==== SIDEBAR ==== */
-    .sidebar {
-      width: 72px;
-      background: white;
-      display: flex;
-      flex-direction: column;
-      align-items: center;
-      padding: var(--space-6) 0;
-      border-right: 1px solid var(--gray-200);
-      z-index: 10;
-    }
-
-    .sidebar img {
-      width: 24px;
-      height: 24px;
-      margin: var(--space-5) 0;
-      padding: var(--space-2);
-      border-radius: var(--radius-md);
-      cursor: pointer;
-      transition: all 0.2s ease;
-      filter: grayscale(100%) opacity(0.7);
-    }
-
-    .sidebar img:hover {
-      filter: grayscale(0) opacity(1);
-      background: var(--primary-50);
-    }
-
-    .sidebar img.logo {
-      width: 32px;
-      height: 32px;
-      filter: none;
-      margin-bottom: var(--space-8);
-    }
-
-    /* ==== MAIN ==== */
-    .main {
-      flex: 1;
-      display: flex;
-      flex-direction: row;
-      overflow: hidden;
-    }
-
-    /* ==== LATERAL ESQUERDA ==== */
-    .form-column {
-      width: 300px;
-      background: white;
-      padding: var(--space-6);
-      border-right: 1px solid var(--gray-200);
-      overflow-y: auto;
-      transition: width 0.3s;
-    }
-
-    .form-column.collapsed {
-      width: 60px;
-      padding: var(--space-3);
-      overflow: hidden;
-    }
-
-    .form-column.collapsed > * {
-      display: none;
-    }
-
-    .form-column.collapsed .toggle-sidebar {
-      display: block;
-      margin: var(--space-2) auto;
-    }
-
-    h1 {
-      font-size: 18px;
-      font-weight: 600;
-      color: var(--gray-900);
-      margin-bottom: var(--space-6);
-      padding-bottom: var(--space-3);
-      border-bottom: 1px solid var(--gray-200);
-    }
-
-    label {
-      display: block;
-      font-size: 13px;
-      font-weight: 500;
-      color: var(--gray-600);
-      margin: var(--space-5) 0 var(--space-2);
-    }
-
-    select, input[type="color"], input[type="file"], input[type="number"], textarea {
-      width: 100%;
-      padding: var(--space-3);
-      margin-top: var(--space-1);
-      border: 1px solid var(--gray-300);
-      border-radius: var(--radius-md);
-      font-size: 13px;
-      transition: all 0.2s;
-      background: white;
-    }
-
-    select:focus, input:focus, textarea:focus {
-      outline: none;
-      border-color: var(--primary-500);
-      box-shadow: 0 0 0 3px var(--primary-50);
-    }
-
-    /* Upload area */
-    .upload-area {
-      border: 2px dashed var(--gray-300);
-      border-radius: var(--radius-xl);
-      padding: var(--space-6);
-      text-align: center;
-      margin-bottom: var(--space-4);
-      transition: all 0.2s;
-      background: var(--gray-50);
-      cursor: pointer;
-    }
-
-    .upload-area:hover {
-      background: var(--primary-50);
-      border-color: var(--primary-500);
-    }
-
-    .upload-area.active {
-      background: var(--primary-50);
-      border-color: var(--primary-600);
-    }
-
-    .upload-area p {
-      font-size: 14px;
-      color: var(--gray-600);
-      margin-bottom: var(--space-3);
-    }
-
-    /* Colunas do Excel */
-    .mapping-columns {
-      display: flex;
-      flex-direction: column;
-      gap: var(--space-1);
-      margin-top: var(--space-2);
-      background: var(--gray-50);
-      padding: var(--space-3);
-      border-radius: var(--radius-lg);
-      min-height: 80px;
-      max-height: 300px;
-      overflow-y: auto;
-      width: 100%;
-      border: 1px solid var(--gray-200);
-    }
-
-    .column-item {
-      width: 100%;
-      padding: var(--space-2) var(--space-3);
-      background: white;
-      border-radius: var(--radius-md);
-      cursor: grab;
-      font-size: 12px;
-      font-weight: 500;
-      transition: all 0.2s;
-      user-select: none;
-      box-sizing: border-box;
-      text-align: left;
-      text-transform: uppercase;
-      border-left: 3px solid var(--primary-600);
-      color: var(--gray-700);
-    }
-
-    .column-item:hover {
-      background: var(--gray-200);
-      transform: translateY(-1px);
-    }
-
-    .column-item:active {
-      cursor: grabbing;
-    }
-
-    /* ==== PREVIEW ==== */
-    .preview-column {
-      flex: 1;
-      display: flex;
-      flex-direction: column;
-      padding: var(--space-6);
-      overflow: auto;
-      background: var(--gray-100);
-    }
-
-    .preview-wrapper {
-      width: 800px;
-      margin: 0 auto;
-      background: white;
-      padding: var(--space-6);
-      border-radius: var(--radius-xl);
-      box-shadow: var(--shadow-md);
-    }
-
-    .preview-container {
-      position: relative;
-      width: 100%;
-      height: 565px;
-      border: 1px solid var(--gray-200);
-      background-size: contain;
-      background-repeat: no-repeat;
-      background-position: center;
-      background-color: white;
-      transition: all 0.3s;
-    }
-
-    .preview-container.drop-active {
-      border: 2px dashed var(--primary-600);
-      background-color: var(--primary-50);
+    @layer components {
+      /* Estilos customizados que não existem no Tailwind */
+      .template-thumb {
+        @apply w-full h-[70px] bg-cover bg-center cursor-pointer transition-all border-2 border-transparent rounded-md;
+      }
+      .template-thumb.selected {
+        @apply border-blue-500 shadow-md shadow-blue-500/10;
+      }
+      .draggable {
+        @apply absolute px-3 py-1 cursor-move border border-transparent select-none max-w-[80%] transition-all text-sm;
+      }
+      .draggable.selected {
+        @apply border-blue-500 bg-blue-50 shadow-sm shadow-blue-500/10;
+      }
+      .draggable:hover {
+        @apply scale-[1.02];
+      }
+      .preview-container.drop-active {
+        @apply border-2 border-dashed border-blue-500 bg-blue-50;
+      }
+      #font-size-range::-webkit-slider-thumb {
+        @apply appearance-none w-3 h-3 bg-blue-600 rounded-full cursor-pointer;
+      }
     }
 
     .draggable {
-      position: absolute;
-      padding: var(--space-1) var(--space-3);
-      cursor: move;
-      border: 1px dashed transparent;
-      user-select: none;
-      max-width: 80%;
-      transition: all 0.2s;
-      font-size: 14px;
-    }
+  position: absolute;
+  padding: 0.5rem 1rem;
+  cursor: move;
+  border: 1px solid transparent;
+  user-select: none;
+  max-width: 80%;
+  transition: all 0.2s;
+  font-size: 14px;
+  background-color: rgba(255, 255, 255, 0.8);
+  z-index: 10;
+}
 
-    .draggable.selected {
-      border: 1px dashed var(--primary-600);
-      background: rgba(59, 130, 246, 0.05);
-      box-shadow: 0 0 0 2px rgba(59, 130, 246, 0.1);
-    }
+.draggable.selected {
+  border: 1px solid #3b82f6;
+  background-color: rgba(239, 246, 255, 0.9);
+  box-shadow: 0 1px 3px rgba(59, 130, 246, 0.1);
+}
 
-    .draggable:hover {
-      transform: scale(1.02);
-    }
-
-    /* === CONTROLES COMPACTOS === */
-    .compact-toolbar {
-      display: flex;
-      align-items: center;
-      gap: var(--space-3);
-      padding: var(--space-3);
-      background: var(--gray-50);
-      border-radius: var(--radius-lg);
-      margin-bottom: var(--space-5);
-      flex-wrap: wrap;
-    }
-
-    .font-control-group {
-      display: flex;
-      align-items: center;
-      gap: var(--space-2);
-    }
-
-    .font-control-group label {
-      font-size: 12px;
-      color: var(--gray-600);
-      font-weight: 500;
-      white-space: nowrap;
-      margin: 0;
-    }
-
-    #font-selector, #font-size {
-      padding: var(--space-1);
-      font-size: 12px;
-      border: 1px solid var(--gray-300);
-      border-radius: var(--radius-sm);
-      min-width: 80px;
-    }
-
-    #font-size-range {
-      -webkit-appearance: none;
-      width: 80px;
-      height: 4px;
-      background: var(--gray-300);
-      border-radius: 2px;
-      outline: none;
-    }
-
-    #font-size-range::-webkit-slider-thumb {
-      -webkit-appearance: none;
-      width: 14px;
-      height: 14px;
-      background: var(--primary-600);
-      border-radius: 50%;
-      cursor: pointer;
-    }
-
-    #font-color {
-      width: 24px;
-      height: 24px;
-      padding: 0;
-      border: none;
-      border-radius: 50%;
-      cursor: pointer;
-    }
-
-    .text-format-buttons {
-      display: flex;
-      gap: var(--space-1);
-    }
-
-    .text-format-buttons button {
-      width: 28px;
-      height: 28px;
-      padding: 0;
-      font-size: 12px;
-      border-radius: var(--radius-sm);
-      border: 1px solid var(--gray-300);
-      background: white;
-      cursor: pointer;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-    }
-
-    .text-format-buttons button:hover {
-      background: var(--gray-100);
-    }
-
-    .compact-buttons {
-      display: flex;
-      gap: var(--space-2);
-      margin-left: auto;
-    }
-
-    /* Botões principais */
-    button {
-      background: var(--primary-600);
-      color: white;
-      border: none;
-      padding: var(--space-3) var(--space-4);
-      border-radius: var(--radius-md);
-      cursor: pointer;
-      font-weight: 500;
-      font-size: 13px;
-      transition: all 0.2s;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      gap: var(--space-1);
-    }
-
-    button:hover {
-      background: var(--primary-700);
-      transform: translateY(-1px);
-    }
-
-    button:active {
-      transform: translateY(0);
-    }
-
-    button.secondary {
-      background: var(--gray-100);
-      color: var(--gray-600);
-      border: 1px solid var(--gray-300);
-    }
-
-    button.secondary:hover {
-      background: var(--gray-200);
-    }
-
-    button.danger {
-      background: var(--red-600);
-    }
-
-    button.danger:hover {
-      background: #b91c1c;
-    }
-
-    .compact-button {
-      padding: var(--space-1) var(--space-2);
-      font-size: 12px;
-      min-width: 70px;
-      border-radius: var(--radius-sm);
-      cursor: pointer;
-      border: 1px solid var(--gray-300);
-      background: white;
-      transition: all 0.2s;
-    }
-
-    .compact-button:hover {
-      background: var(--gray-100);
-    }
-
-    .compact-button.secondary {
-      background: var(--gray-100);
-    }
-
-    .compact-button.danger {
-      background: #fee2e2;
-      color: var(--red-600);
-      border-color: #fca5a5;
-    }
-
-    .compact-button.danger:hover {
-      background: #fecaca;
-    }
-
-    /* Editor de texto */
-    #descricao-certificado {
-      width: 100%;
-      padding: var(--space-3);
-      border: 1px solid var(--gray-300);
-      border-radius: var(--radius-md);
-      resize: vertical;
-      min-height: 100px;
-      font-size: 13px;
-      line-height: 1.5;
-      margin-top: var(--space-2);
-    }
-
-    /* Template thumbnails */
-    .template-thumbnails {
-      display: flex;
-      flex-direction: column;
-      gap: var(--space-2);
-      margin-top: var(--space-3);
-    }
-
-    .template-thumb {
-      width: 100%;
-      height: 70px;
-      background-size: cover;
-      background-position: center;
-      border: 2px solid transparent;
-      border-radius: var(--radius-md);
-      cursor: pointer;
-      transition: all 0.2s;
-    }
-
-    .template-thumb.selected {
-      border-color: var(--primary-600);
-      box-shadow: 0 0 0 2px rgba(59, 130, 246, 0.1);
-    }
-
-    /* Toast notifications */
-    .toast {
-      position: fixed;
-      bottom: 20px;
-      right: 20px;
-      padding: var(--space-3) var(--space-5);
-      background: var(--green-500);
-      color: white;
-      border-radius: var(--radius-md);
-      box-shadow: var(--shadow-lg);
-      animation: slideIn 0.3s ease-out;
-      z-index: 100;
-      font-size: 13px;
-    }
-
-    .toast.error {
-      background: var(--red-500);
-    }
-
-    .toast.warning {
-      background: var(--yellow-500);
-    }
-
-    @keyframes slideIn {
-      from { transform: translateY(100px); opacity: 0; }
-      to { transform: translateY(0); opacity: 1; }
-    }
-
-    /* Toggle sidebar button */
-    .toggle-sidebar {
-      background: none;
-      border: none;
-      cursor: pointer;
-      padding: var(--space-1);
-      display: none;
-    }
-
-    .toggle-sidebar svg {
-      width: 24px;
-      height: 24px;
-      stroke: var(--gray-500);
-    }
-
-    /* Prompt sugestões */
-    .prompt-sugestoes {
-      display: flex;
-      gap: var(--space-2);
-      margin: var(--space-2) 0;
-      flex-wrap: wrap;
-    }
-
-    .prompt-sugestoes button {
-      padding: var(--space-1) var(--space-2);
-      font-size: 12px;
-      background: var(--gray-100);
-      color: var(--gray-600);
-      border-radius: var(--radius-sm);
-      border: 1px solid var(--gray-300);
-    }
-
-    .prompt-sugestoes button:hover {
-      background: var(--gray-200);
-    }
-
-    /* Chat histórico */
-    #chat-historico {
-      margin-top: var(--space-3);
-      border: 1px solid var(--gray-200);
-      border-radius: var(--radius-md);
-      padding: var(--space-3);
-      background: var(--gray-50);
-      max-height: 200px;
-      overflow-y: auto;
-    }
-
-    #chat-historico .mensagem-usuario {
-      background-color: #e6f2ff;
-      padding: var(--space-2);
-      border-radius: var(--radius-sm);
-      margin-bottom: var(--space-1);
-      font-size: 13px;
-    }
-
-    #chat-historico .mensagem-ia {
-      background-color: white;
-      padding: var(--space-2);
-      border-radius: var(--radius-sm);
-      margin-bottom: var(--space-1);
-      font-size: 13px;
-      border: 1px solid var(--gray-200);
-    }
-
-    /* Responsive adjustments */
-    @media (max-width: 1200px) {
-      .preview-wrapper {
-        width: 100%;
-      }
-      .form-column {
-        width: 280px;
-      }
-    }
-
-    @media (max-width: 992px) {
-      .main {
-        flex-direction: column;
-      }
-      .form-column {
-        width: 100%;
-        border-right: none;
-        border-bottom: 1px solid var(--gray-200);
-      }
-      .preview-column {
-        padding: var(--space-4);
-      }
-    }
+.preview-container.drop-active {
+  border: 2px dashed #3b82f6;
+  background-color: rgba(239, 246, 255, 0.5);
+}
   </style>
 </head>
-<body>
+<body class="font-sans text-gray-900 bg-gray-50 flex h-screen overflow-hidden">
   <!-- SIDEBAR -->
-  <div class="sidebar">
-    <img src="https://cdn-icons-png.flaticon.com/512/747/747376.png" class="logo" alt="Logo">
-    <img src="https://cdn-icons-png.flaticon.com/512/747/747376.png" title="Gerador">
-    <img src="https://cdn-icons-png.flaticon.com/512/1828/1828843.png" title="Relatórios">
-    <img src="https://cdn-icons-png.flaticon.com/512/992/992680.png" title="Sair">
+  <div class="w-16 bg-white flex flex-col items-center py-6 border-r border-gray-200 z-10">
+    <img src="https://cdn-icons-png.flaticon.com/512/747/747376.png" class="w-8 h-8 mb-8" alt="Logo">
+    <div class="flex flex-col items-center space-y-5">
+      <button class="p-2 rounded-lg hover:bg-blue-50 transition-all group" title="Gerador">
+        <img src="https://cdn-icons-png.flaticon.com/512/747/747376.png" class="w-5 h-5 group-hover:scale-110 transition-transform">
+      </button>
+      <button class="p-2 rounded-lg hover:bg-blue-50 transition-all group" title="Relatórios">
+        <img src="https://cdn-icons-png.flaticon.com/512/1828/1828843.png" class="w-5 h-5 group-hover:scale-110 transition-transform">
+      </button>
+      <button class="p-2 rounded-lg hover:bg-blue-50 transition-all group" title="Sair">
+        <img src="https://cdn-icons-png.flaticon.com/512/992/992680.png" class="w-5 h-5 group-hover:scale-110 transition-transform">
+      </button>
+    </div>
   </div>
 
-  <!-- MAIN -->
-  <div class="main">
-    <!-- LATERAL ESQUERDA -->
-    <div class="form-column" id="form-column">
-      <button class="toggle-sidebar" onclick="toggleSidebar()">
-        <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 5l7 7-7 7M5 5l7 7-7 7" />
-        </svg>
-      </button>
-      
-      <h1>Editor de Certificado</h1>
-      
-      <label>Upload do Excel:</label>
-      <div class="upload-area" id="upload-area">
-        <p>Arraste seu arquivo Excel aqui ou</p>
-        <input type="file" id="excel-upload" accept=".xls,.xlsx" style="display: none;" />
-        <button class="secondary" onclick="document.getElementById('excel-upload').click()">Selecionar Arquivo</button>
-        <p style="font-size: 12px; color: var(--gray-500); margin-top: var(--space-2);">Formatos suportados: .xls, .xlsx</p>
-      </div>
-
-      <label>Campos do Excel (arraste para o certificado):</label>
-      <div id="excel-columns" class="mapping-columns">
-        <p style="color: var(--gray-500); font-size: 12px; text-align: center; width: 100%;">Faça upload do Excel para carregar as colunas...</p>
-      </div>
-      
-      <div style="margin-top: var(--space-5);">
-        <label for="template">Selecione Template:</label>
-        <select id="template">
-          <option value="/storage/templates/template_certificado_1.jpg">Graduação Odontologia</option>
-          <option value="/storage/templates/template_certificado_2.jpg">Pós-Odontologia</option>
-          <option value="/storage/templates/template_certificado_3.jpg">SLMandic</option>
-        </select>
-        <div id="template-thumbnails" class="template-thumbnails"></div>
-      </div>
-    </div>
-
-    <!-- PREVIEW + CONTROLES COMPACTOS -->
-    <div class="preview-column">
-      <div class="preview-wrapper">
-        <!-- Nova barra de controles compacta -->
-        <div class="compact-toolbar">
-          <div class="font-control-group">
-            <label for="font-selector">Fonte</label>
-            <select id="font-selector">
-              <option value="Work Sans">Work Sans</option>
-              <option value="Roboto">Roboto</option>
-              <option value="Arial">Arial</option>
-            </select>
-          </div>
-
-          <div class="font-control-group">
-            <label for="font-color">Cor</label>
-            <input type="color" id="font-color" value="#000000">
-          </div>
-
-          <div class="font-control-group">
-            <label for="font-size">Tamanho</label>
-            <input type="range" id="font-size-range" min="8" max="52" value="24">
-            <input type="number" id="font-size" min="8" max="52" value="24" style="width: 50px;">
-          </div>
-          
-          <div class="text-format-buttons">
-            <button data-command="bold" title="Negrito"><b>B</b></button>
-            <button data-command="italic" title="Itálico"><i>I</i></button>
-            <button data-command="underline" title="Sublinhado"><u>S</u></button>
-          </div>
-          
-          <div class="compact-buttons">
-            <button id="auto-position" class="compact-button" title="Auto-Posicionar">Posicionar</button>
-            <button id="delete-field" class="compact-button danger" title="Remover">Remover</button>
-            <button id="save-layout" class="compact-button secondary" title="Salvar">Salvar</button>
-          </div>
-        </div>
-
-        <!-- Editor de texto -->
-        <div style="margin-top: var(--space-5);">
-          <label for="prompt">Personalizar texto do certificado:</label>
-          <textarea id="prompt" placeholder="Digite aqui como quer que o certificado seja gerado..."></textarea>
-          
-          <div class="prompt-sugestoes">
-            <button onclick="usarSugestao('Deixe o texto mais formal.')">+ Formal</button>
-            <button onclick="usarSugestao('Adicione agradecimentos ao corpo docente.')">+ Agradecimento</button>
-            <button onclick="usarSugestao('Resuma o texto em uma linha.')">+ Resumo</button>
-          </div>
-          
-          <div style="display: flex; gap: var(--space-2); margin-top: var(--space-3);">
-            <button onclick="refinarTexto()">Refinar com esse prompt</button>
-            <button onclick="gerarTextoCertificado()">Gerar Texto</button>
-            <button onclick="limparHistorico()" class="secondary">Novo Texto</button>
-          </div>
-          
-          <div id="chat-historico"></div>
-          
-          <label for="descricao-certificado">Texto do Certificado:</label>
-          <textarea id="descricao-certificado" rows="4">
-CERTIFICAMOS, por meio deste, que Raphael concluiu con êxito o curso de Odontologia, cumprindo uma carga horária total de 200 horas. De referido curso foi realizado na unidade de Campinas, com a data de conclusão registrada em 20 de julho de 2025. Agradecemos ao corpo docente pela excelência na condução das atividades acadêmicas, cuja dedicação e comprometimento foram fundamentais para a formação do aluno.
-          </textarea>
-          
-          <button id="add-descricao" style="margin-top: var(--space-3); width:100%;">
-            <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-              <line x1="12" y1="5" x2="12" y2="19"></line>
-              <line x1="5" y1="12" x2="19" y2="12"></line>
+  <!-- MAIN CONTENT -->
+  <div class="flex-1 flex flex-col overflow-hidden">
+    <div class="flex flex-1 overflow-hidden">
+      <!-- LATERAL ESQUERDA -->
+      <div class="w-72 bg-white p-6 border-r border-gray-200 overflow-y-auto transition-all duration-300" id="form-column">
+        <div class="flex justify-between items-center mb-6 pb-4 border-b border-gray-200">
+          <h1 class="text-lg font-semibold text-gray-900">Editor de Certificado</h1>
+          <button class="toggle-sidebar hidden p-1 text-gray-500 hover:text-gray-700" onclick="toggleSidebar()">
+            <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" viewBox="0 0 20 20" fill="currentColor">
+              <path fill-rule="evenodd" d="M7.293 14.707a1 1 0 010-1.414L10.586 10 7.293 6.707a1 1 0 011.414-1.414l4 4a1 1 0 010 1.414l-4 4a1 1 0 01-1.414 0z" clip-rule="evenodd" />
             </svg>
-            Adicionar/Atualizar Texto
           </button>
         </div>
+        
+        <div class="space-y-6">
+          <!-- Upload do Excel -->
+          <div>
+            <label class="block text-sm font-medium text-gray-700 mb-2">Upload do Excel:</label>
+            <div class="upload-area border-2 border-dashed border-gray-300 rounded-xl p-6 text-center cursor-pointer transition-colors hover:border-blue-500 hover:bg-blue-50" id="upload-area">
+              <p class="text-sm text-gray-600 mb-3">Arraste seu arquivo Excel aqui ou</p>
+              <input type="file" id="excel-upload" accept=".xls,.xlsx" class="hidden" />
+              <button class="secondary bg-white border border-gray-300 text-blue-600 font-medium rounded-lg px-4 py-2 text-sm hover:bg-gray-50 transition-colors" onclick="document.getElementById('excel-upload').click()">
+                Selecionar Arquivo
+              </button>
+              <p class="text-xs text-gray-500 mt-3">Formatos suportados: .xls, .xlsx</p>
+            </div>
+          </div>
 
-        <!-- Preview do certificado -->
-        <div class="preview-container" id="preview"></div>
+          <!-- Campos do Excel -->
+          <div>
+            <label class="block text-sm font-medium text-gray-700 mb-2">Campos do Excel (arraste para o certificado):</label>
+            <div id="excel-columns" class="mapping-columns bg-gray-50 border border-gray-200 rounded-lg p-3 max-h-80 overflow-y-auto">
+              <p class="text-xs text-gray-500 text-center w-full">Faça upload do Excel para carregar as colunas...</p>
+            </div>
+          </div>
+
+          <!-- Seleção de Template -->
+          <div>
+            <label for="template" class="block text-sm font-medium text-gray-700 mb-2">Selecione Template:</label>
+            <select id="template" class="w-full px-3 py-2 border border-gray-300 rounded-lg text-sm focus:ring-blue-500 focus:border-blue-500 transition-colors">
+              <option value="/storage/templates/template_certificado_1.jpg">Graduação Odontologia</option>
+              <option value="/storage/templates/template_certificado_2.jpg">Pós-Odontologia</option>
+              <option value="/storage/templates/template_certificado_3.jpg">SLMandic</option>
+            </select>
+            <div id="template-thumbnails" class="template-thumbnails mt-3 space-y-2"></div>
+          </div>
+        </div>
+      </div>
+
+      <!-- ÁREA DE PREVIEW -->
+      <div class="flex-1 flex flex-col overflow-auto bg-gray-50 p-6">
+        <div class="max-w-4xl w-full mx-auto bg-white rounded-xl shadow-sm p-6">
+          <!-- Barra de ferramentas -->
+          <div class="flex flex-wrap items-center gap-3 bg-gray-50 rounded-lg p-3 mb-6">
+            <!-- Controles de fonte -->
+            <div class="flex items-center gap-2">
+              <label class="text-xs font-medium text-gray-600 whitespace-nowrap">Fonte</label>
+              <select id="font-selector" class="text-xs border border-gray-300 rounded px-2 py-1 focus:ring-blue-500 focus:border-blue-500">
+                <option value="Work Sans">Work Sans</option>
+                <option value="Roboto">Roboto</option>
+                <option value="Arial">Arial</option>
+              </select>
+            </div>
+
+            <div class="flex items-center gap-2">
+              <label class="text-xs font-medium text-gray-600 whitespace-nowrap">Cor</label>
+              <input type="color" id="font-color" value="#000000" class="w-6 h-6 p-0 border-none rounded-full cursor-pointer">
+            </div>
+
+            <div class="flex items-center gap-2 flex-1 min-w-[150px]">
+              <label class="text-xs font-medium text-gray-600 whitespace-nowrap">Tamanho</label>
+              <input type="range" id="font-size-range" min="8" max="52" value="24" class="flex-1 h-1 bg-gray-300 rounded-lg appearance-none cursor-pointer">
+              <input type="number" id="font-size" min="8" max="52" value="24" class="w-12 text-xs border border-gray-300 rounded px-2 py-1 text-center">
+            </div>
+
+            <!-- Botões de formatação -->
+            <div class="flex gap-1">
+              <button data-command="bold" class="w-7 h-7 flex items-center justify-center border border-gray-300 rounded bg-white hover:bg-gray-100 transition-colors" title="Negrito">
+                <b class="text-sm">B</b>
+              </button>
+              <button data-command="italic" class="w-7 h-7 flex items-center justify-center border border-gray-300 rounded bg-white hover:bg-gray-100 transition-colors" title="Itálico">
+                <i class="text-sm">I</i>
+              </button>
+              <button data-command="underline" class="w-7 h-7 flex items-center justify-center border border-gray-300 rounded bg-white hover:bg-gray-100 transition-colors" title="Sublinhado">
+                <u class="text-sm">S</u>
+              </button>
+            </div>
+
+            <!-- Botões de ação -->
+            <div class="flex gap-2 ml-auto">
+              <button id="auto-position" class="compact-button px-3 py-1 text-xs border border-gray-300 rounded bg-white hover:bg-gray-100 transition-colors" title="Auto-Posicionar">
+                Posicionar
+              </button>
+              <button id="delete-field" class="compact-button danger px-3 py-1 text-xs border border-red-200 rounded bg-red-50 text-red-600 hover:bg-red-100 transition-colors" title="Remover">
+                Remover
+              </button>
+              <button id="save-layout" class="compact-button secondary px-3 py-1 text-xs border border-gray-300 rounded bg-gray-100 text-gray-700 hover:bg-gray-200 transition-colors" title="Salvar">
+                Salvar
+              </button>
+            </div>
+          </div>
+
+          <!-- Editor de texto -->
+          <div class="space-y-4">
+            <div>
+              <label for="prompt" class="block text-sm font-medium text-gray-700 mb-2">Personalizar texto do certificado:</label>
+              <textarea id="prompt" rows="3" class="w-full px-3 py-2 border border-gray-300 rounded-lg text-sm focus:ring-blue-500 focus:border-blue-500 transition-colors" placeholder="Digite aqui como quer que o certificado seja gerado..."></textarea>
+              
+              <div class="prompt-sugestoes flex gap-2 mt-2 flex-wrap">
+                <button onclick="usarSugestao('Deixe o texto mais formal.')" class="text-xs px-3 py-1 bg-gray-100 text-gray-700 rounded-md border border-gray-300 hover:bg-gray-200 transition-colors">
+                  + Formal
+                </button>
+                <button onclick="usarSugestao('Adicione agradecimentos ao corpo docente.')" class="text-xs px-3 py-1 bg-gray-100 text-gray-700 rounded-md border border-gray-300 hover:bg-gray-200 transition-colors">
+                  + Agradecimento
+                </button>
+                <button onclick="usarSugestao('Resuma o texto em uma linha.')" class="text-xs px-3 py-1 bg-gray-100 text-gray-700 rounded-md border border-gray-300 hover:bg-gray-200 transition-colors">
+                  + Resumo
+                </button>
+              </div>
+              
+              <div class="flex gap-3 mt-3">
+                <button onclick="refinarTexto()" class="flex-1 bg-blue-600 hover:bg-blue-700 text-white font-medium py-2 px-4 rounded-lg transition-colors flex items-center justify-center gap-2">
+                  Refinar com esse prompt
+                </button>
+                <button onclick="gerarTextoCertificado()" class="flex-1 bg-blue-600 hover:bg-blue-700 text-white font-medium py-2 px-4 rounded-lg transition-colors flex items-center justify-center gap-2">
+                  Gerar Texto
+                </button>
+                <button onclick="limparHistorico()" class="flex-1 bg-gray-100 hover:bg-gray-200 text-gray-700 font-medium py-2 px-4 rounded-lg border border-gray-300 transition-colors flex items-center justify-center gap-2">
+                  Novo Texto
+                </button>
+              </div>
+              
+              <div id="chat-historico" class="mt-4 border border-gray-200 rounded-lg p-3 bg-gray-50 max-h-48 overflow-y-auto"></div>
+            </div>
+
+            <div>
+              <label for="descricao-certificado" class="block text-sm font-medium text-gray-700 mb-2">Texto do Certificado:</label>
+              <textarea id="descricao-certificado" rows="4" class="w-full px-3 py-2 border border-gray-300 rounded-lg text-sm focus:ring-blue-500 focus:border-blue-500 transition-colors">
+CERTIFICAMOS, por meio deste, que Raphael concluiu con êxito o curso de Odontologia, cumprindo uma carga horária total de 200 horas. De referido curso foi realizado na unidade de Campinas, com a data de conclusão registrada em 20 de julho de 2025. Agradecemos ao corpo docente pela excelência na condução das atividades acadêmicas, cuja dedicação e comprometimento foram fundamentais para a formação do aluno.
+              </textarea>
+              <input type="hidden" name="descricao" id="descricao-certificado-input" value="">
+              
+              <button id="add-descricao" class="w-full mt-3 bg-blue-600 hover:bg-blue-700 text-white font-medium py-2 px-4 rounded-lg transition-colors flex items-center justify-center gap-2">
+                <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6v6m0 0v6m0-6h6m-6 0H6" />
+                </svg>
+                Adicionar/Atualizar Texto
+              </button>
+            </div>
+          </div>
+
+          <!-- Preview do certificado -->
+          <div class="mt-6">
+<div class="preview-container border border-gray-200 rounded-lg bg-white w-full aspect-[4/3] relative overflow-hidden" id="preview" style="background-size: contain; background-repeat: no-repeat; background-position: center;"></div>          </div>
+        </div>
       </div>
     </div>
   </div>
+
 
   <script>
   // Estado global da aplicação
@@ -1006,88 +509,120 @@ if (gerarTextoBtn) {
     element.style.textAlign = position.align;
   }
 
-  // Configura drag and drop
-  function setupDragAndDrop() {
-    preview.addEventListener('dragover', e => {
-      e.preventDefault();
-      preview.classList.add('drop-active');
-    });
-    
-    preview.addEventListener('dragleave', () => {
-      preview.classList.remove('drop-active');
-    });
-    
-    preview.addEventListener('drop', e => {
-      e.preventDefault();
-      preview.classList.remove('drop-active');
-      
-      try {
-        const data = JSON.parse(e.dataTransfer.getData('application/json'));
-        
-        if (data.type === 'excel-field') {
-          const fieldName = data.name;
-          const div = createFieldElement(fieldName, true);
-          div.style.top = `${e.offsetY}px`;
-          div.style.left = `${e.offsetX}px`;
-          div.style.fontFamily = fontSelector.value;
-          div.style.fontSize = `${fontSizeInput.value}px`;
-          div.style.color = fontColorInput.value;
-          preview.appendChild(div);
-        }
-      } catch {
-        // Caso não seja um campo do Excel, trata como texto livre
-        const text = e.dataTransfer.getData('text/plain');
-        if (text) {
-          const div = createFieldElement(text);
-          div.style.top = `${e.offsetY}px`;
-          div.style.left = `${e.offsetX}px`;
-          div.style.fontFamily = fontSelector.value;
-          div.style.fontSize = `${fontSizeInput.value}px`;
-          div.style.color = fontColorInput.value;
-          preview.appendChild(div);
-        }
-      }
-    });
-  }
+  // Adicione esta função modificada (mantendo toda a lógica original)
+function setupDragAndDrop() {
+  const preview = document.getElementById('preview'); // ID original mantido
+  const excelColumns = document.getElementById('excel-columns'); // ID original mantido
 
-  // Torna um elemento arrastável
-  function makeDraggable(el) {
-    let offsetX, offsetY, isDragging = false;
+  // 1. Configuração dos listeners originais
+  preview.addEventListener('dragover', function(e) {
+    e.preventDefault();
+    preview.classList.add('border-blue-500', 'bg-blue-50'); // Classes do Tailwind
+  });
+
+  preview.addEventListener('dragleave', function() {
+    preview.classList.remove('border-blue-500', 'bg-blue-50');
+  });
+
+  preview.addEventListener('drop', function(e) {
+    e.preventDefault();
+    preview.classList.remove('border-blue-500', 'bg-blue-50');
     
-    el.addEventListener('mousedown', e => {
-      if (e.button !== 0) return; // Apenas botão esquerdo
-      
-      // Seleciona o elemento
-      if (state.selectedElement) state.selectedElement.classList.remove('selected');
-      state.selectedElement = el;
-      el.classList.add('selected');
-      
-      // Prepara para arrastar
-      offsetX = e.offsetX;
-      offsetY = e.offsetY;
-      isDragging = false;
-      
-      function mouseMoveHandler(ev) {
-        isDragging = true;
-        el.style.left = `${ev.pageX - preview.getBoundingClientRect().left - offsetX}px`;
-        el.style.top = `${ev.pageY - preview.getBoundingClientRect().top - offsetY}px`;
-        el.style.transform = 'none';
+    // Lógica original de tratamento do drop
+    try {
+      const data = JSON.parse(e.dataTransfer.getData('application/json'));
+      if (data.type === 'excel-field') {
+        const fieldName = data.name;
+        const div = createFieldElement(fieldName, true);
+        div.style.top = `${e.offsetY}px`;
+        div.style.left = `${e.offsetX}px`;
+        preview.appendChild(div);
+        makeDraggable(div); // Chama a função original
       }
-      
-      function mouseUpHandler() {
-        document.removeEventListener('mousemove', mouseMoveHandler);
-        document.removeEventListener('mouseup', mouseUpHandler);
-        
-        if (!isDragging) {
-          // Foi apenas um clique, não um arraste
-          updateStyleControls();
-        }
+    } catch {
+      const text = e.dataTransfer.getData('text/plain');
+      if (text) {
+        const div = createFieldElement(text);
+        div.style.top = `${e.offsetY}px`;
+        div.style.left = `${e.offsetX}px`;
+        preview.appendChild(div);
+        makeDraggable(div); // Chama a função original
       }
-      
-      document.addEventListener('mousemove', mouseMoveHandler);
-      document.addEventListener('mouseup', mouseUpHandler);
-    });
+    }
+  });
+
+  // 2. Atualização dos itens arrastáveis
+  if (excelColumns) {
+    new MutationObserver(function() {
+      document.querySelectorAll('.column-item').forEach(function(item) {
+        item.draggable = true;
+        item.addEventListener('dragstart', function(e) {
+          e.dataTransfer.setData('text/plain', e.target.textContent);
+          e.dataTransfer.setData('application/json', JSON.stringify({
+            type: 'excel-field',
+            name: e.target.textContent
+          }));
+        });
+      });
+    }).observe(excelColumns, { childList: true });
   }
+}
+
+// Atualize a inicialização para garantir que seja chamada
+document.addEventListener('DOMContentLoaded', function() {
+  // ... seu código existente ...
+  setupDragAndDrop(); // Adicione esta linha
+});
+
+  function makeDraggable(el) {
+  let offsetX, offsetY, isDragging = false;
+  
+  el.addEventListener('mousedown', e => {
+    if (e.button !== 0) return; // Apenas botão esquerdo
+    
+    // Seleciona o elemento
+    if (state.selectedElement) state.selectedElement.classList.remove('selected');
+    state.selectedElement = el;
+    el.classList.add('selected');
+    
+    // Prepara para arrastar
+    const rect = el.getBoundingClientRect();
+    const previewRect = preview.getBoundingClientRect();
+    
+    offsetX = e.clientX - rect.left + previewRect.left;
+    offsetY = e.clientY - rect.top + previewRect.top;
+    isDragging = false;
+    
+    function mouseMoveHandler(ev) {
+      isDragging = true;
+      
+      // Calcula a nova posição relativa ao preview
+      let newX = ev.clientX - offsetX;
+      let newY = ev.clientY - offsetY;
+      
+      // Limita ao container
+      newX = Math.max(0, Math.min(newX, previewRect.width - rect.width));
+      newY = Math.max(0, Math.min(newY, previewRect.height - rect.height));
+      
+      el.style.left = `${newX}px`;
+      el.style.top = `${newY}px`;
+      el.style.transform = 'none';
+    }
+    
+    function mouseUpHandler() {
+      document.removeEventListener('mousemove', mouseMoveHandler);
+      document.removeEventListener('mouseup', mouseUpHandler);
+      
+      if (!isDragging) {
+        // Foi apenas um clique, não um arraste
+        updateStyleControls();
+      }
+    }
+    
+    document.addEventListener('mousemove', mouseMoveHandler);
+    document.addEventListener('mouseup', mouseUpHandler);
+  });
+}
 
   // Manipulação de cliques no preview
   function handlePreviewClick(e) {
@@ -1179,8 +714,6 @@ if (gerarTextoBtn) {
 
   // Configura o editor de texto
   function setupTextEditor() {
-    
-
 
 // Agora estilizar cada botão individualmente:
 const buttons = toolbar.querySelectorAll('button');
