@@ -5,146 +5,290 @@
   <meta name="csrf-token" content="{{ csrf_token() }}">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Editor de Certificados</title>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&display=swap" rel="stylesheet">
   <style>
-    * { margin: 0; padding: 0; box-sizing: border-box; }
-    body { font-family: Arial, sans-serif; display: flex; height: 100vh; background: #f3f4f6; }
+    :root {
+      /* Cores */
+      --primary-50: #eff6ff;
+      --primary-100: #dbeafe;
+      --primary-500: #3b82f6;
+      --primary-600: #2563eb;
+      --primary-700: #1d4ed8;
+      --gray-50: #f9fafb;
+      --gray-100: #f3f4f6;
+      --gray-200: #e5e7eb;
+      --gray-300: #d1d5db;
+      --gray-400: #9ca3af;
+      --gray-500: #6b7280;
+      --gray-600: #4b5563;
+      --gray-700: #374151;
+      --gray-900: #111827;
+      --red-500: #ef4444;
+      --red-600: #dc2626;
+      --green-500: #10b981;
+      --yellow-500: #f59e0b;
+      
+      /* Espaçamentos */
+      --space-1: 4px;
+      --space-2: 8px;
+      --space-3: 12px;
+      --space-4: 16px;
+      --space-5: 20px;
+      --space-6: 24px;
+      --space-8: 32px;
+      
+      /* Bordas */
+      --radius-sm: 4px;
+      --radius-md: 6px;
+      --radius-lg: 8px;
+      --radius-xl: 12px;
+      
+      /* Sombras */
+      --shadow-sm: 0 1px 2px 0 rgba(0, 0, 0, 0.05);
+      --shadow-md: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
+      --shadow-lg: 0 10px 15px -3px rgba(0, 0, 0, 0.1);
+    }
+
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+
+    body {
+      font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+      color: var(--gray-900);
+      background: var(--gray-100);
+      display: flex;
+      height: 100vh;
+      overflow: hidden;
+    }
 
     /* ==== SIDEBAR ==== */
-    .sidebar { width: 80px; background: #fff; display: flex; flex-direction: column; align-items: center; padding: 20px 0; box-shadow: 2px 0 6px rgba(0,0,0,0.1); z-index: 10; }
-    .sidebar img { width: 32px; height: 32px; margin: 20px 0; cursor: pointer; transition: transform 0.2s; }
-    .sidebar img:hover { transform: scale(1.1); }
-    .sidebar img.logo { width: 40px; height: 40px; margin-bottom: 40px; }
+    .sidebar {
+      width: 72px;
+      background: white;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      padding: var(--space-6) 0;
+      border-right: 1px solid var(--gray-200);
+      z-index: 10;
+    }
+
+    .sidebar img {
+      width: 24px;
+      height: 24px;
+      margin: var(--space-5) 0;
+      padding: var(--space-2);
+      border-radius: var(--radius-md);
+      cursor: pointer;
+      transition: all 0.2s ease;
+      filter: grayscale(100%) opacity(0.7);
+    }
+
+    .sidebar img:hover {
+      filter: grayscale(0) opacity(1);
+      background: var(--primary-50);
+    }
+
+    .sidebar img.logo {
+      width: 32px;
+      height: 32px;
+      filter: none;
+      margin-bottom: var(--space-8);
+    }
 
     /* ==== MAIN ==== */
-    .main { flex: 1; display: flex; flex-direction: row; overflow: hidden; }
+    .main {
+      flex: 1;
+      display: flex;
+      flex-direction: row;
+      overflow: hidden;
+    }
 
     /* ==== LATERAL ESQUERDA ==== */
-    .form-column { width: 300px; background: #fff; padding: 20px; border-right: 1px solid #ddd; overflow-y: auto; transition: width 0.3s; }
-    .form-column.collapsed { width: 60px; padding: 10px; overflow: hidden; }
-    .form-column.collapsed > * { display: none; }
-    .form-column.collapsed .toggle-sidebar { display: block; margin: 10px auto; }
-    h1 { font-size: 20px; margin-bottom: 15px; }
-    label { display: block; margin-top: 15px; font-size: 14px; color: #4b5563; }
-    select, input[type="color"], input[type="file"], input[type="number"], textarea { 
-      width: 100%; padding: 8px; margin-top: 5px; border: 1px solid #d1d5db; border-radius: 6px;
-      transition: border-color 0.2s, box-shadow 0.2s;
+    .form-column {
+      width: 300px;
+      background: white;
+      padding: var(--space-6);
+      border-right: 1px solid var(--gray-200);
+      overflow-y: auto;
+      transition: width 0.3s;
     }
+
+    .form-column.collapsed {
+      width: 60px;
+      padding: var(--space-3);
+      overflow: hidden;
+    }
+
+    .form-column.collapsed > * {
+      display: none;
+    }
+
+    .form-column.collapsed .toggle-sidebar {
+      display: block;
+      margin: var(--space-2) auto;
+    }
+
+    h1 {
+      font-size: 18px;
+      font-weight: 600;
+      color: var(--gray-900);
+      margin-bottom: var(--space-6);
+      padding-bottom: var(--space-3);
+      border-bottom: 1px solid var(--gray-200);
+    }
+
+    label {
+      display: block;
+      font-size: 13px;
+      font-weight: 500;
+      color: var(--gray-600);
+      margin: var(--space-5) 0 var(--space-2);
+    }
+
+    select, input[type="color"], input[type="file"], input[type="number"], textarea {
+      width: 100%;
+      padding: var(--space-3);
+      margin-top: var(--space-1);
+      border: 1px solid var(--gray-300);
+      border-radius: var(--radius-md);
+      font-size: 13px;
+      transition: all 0.2s;
+      background: white;
+    }
+
     select:focus, input:focus, textarea:focus {
       outline: none;
-      border-color: #2563eb;
-      box-shadow: 0 0 0 2px rgba(37, 99, 235, 0.2);
+      border-color: var(--primary-500);
+      box-shadow: 0 0 0 3px var(--primary-50);
     }
 
     /* Upload area */
     .upload-area {
-      border: 2px dashed #d1d5db;
-      border-radius: 8px;
-      padding: 20px;
+      border: 2px dashed var(--gray-300);
+      border-radius: var(--radius-xl);
+      padding: var(--space-6);
       text-align: center;
-      margin-bottom: 15px;
-      transition: background 0.2s;
+      margin-bottom: var(--space-4);
+      transition: all 0.2s;
+      background: var(--gray-50);
+      cursor: pointer;
     }
+
     .upload-area:hover {
-      background: #f9fafb;
-      border-color: #2563eb;
+      background: var(--primary-50);
+      border-color: var(--primary-500);
     }
+
     .upload-area.active {
-      background: #eff6ff;
-      border-color: #2563eb;
+      background: var(--primary-50);
+      border-color: var(--primary-600);
+    }
+
+    .upload-area p {
+      font-size: 14px;
+      color: var(--gray-600);
+      margin-bottom: var(--space-3);
     }
 
     /* Colunas do Excel */
-    /* Colunas do Excel - Modificado para exibir em coluna */
-/* Colunas do Excel - Estilo lista vertical */
-.mapping-columns {
-  display: flex;
-  flex-direction: column;
-  gap: 6px;
-  margin-top: 10px;
-  background: #f8f8f8;
-  padding: 12px;
-  border-radius: 8px;
-  min-height: 80px;
-  max-height: 300px; /* Aumentei para caber mais itens */
-  overflow-y: auto;
-  width: 100%;
-}
+    .mapping-columns {
+      display: flex;
+      flex-direction: column;
+      gap: var(--space-1);
+      margin-top: var(--space-2);
+      background: var(--gray-50);
+      padding: var(--space-3);
+      border-radius: var(--radius-lg);
+      min-height: 80px;
+      max-height: 300px;
+      overflow-y: auto;
+      width: 100%;
+      border: 1px solid var(--gray-200);
+    }
 
-.column-item {
-  width: 100%;
-  padding: 8px 12px;
-  background: #e5e7eb;
-  border-radius: 6px;
-  cursor: grab;
-  font-size: 13px;
-  transition: all 0.2s;
-  user-select: none;
-  box-sizing: border-box;
-  text-align: left;
-  text-transform: uppercase; /* Opcional - para deixar em caixa alta como na imagem */
-  font-weight: normal; /* Remove o negrito se existir */
-  border-left: 3px solid #2563eb; /* Adiciona borda lateral como na imagem */
-}
+    .column-item {
+      width: 100%;
+      padding: var(--space-2) var(--space-3);
+      background: white;
+      border-radius: var(--radius-md);
+      cursor: grab;
+      font-size: 12px;
+      font-weight: 500;
+      transition: all 0.2s;
+      user-select: none;
+      box-sizing: border-box;
+      text-align: left;
+      text-transform: uppercase;
+      border-left: 3px solid var(--primary-600);
+      color: var(--gray-700);
+    }
 
-.column-item:hover {
-  background: #d1d5db;
-  transform: translateY(-1px);
-}
+    .column-item:hover {
+      background: var(--gray-200);
+      transform: translateY(-1px);
+    }
 
-.column-item:active {
-  cursor: grabbing;
-}
+    .column-item:active {
+      cursor: grabbing;
+    }
 
     /* ==== PREVIEW ==== */
-    .preview-column { 
-      flex: 1; 
-      display: flex; 
-      flex-direction: column; 
-      padding: 20px;
+    .preview-column {
+      flex: 1;
+      display: flex;
+      flex-direction: column;
+      padding: var(--space-6);
       overflow: auto;
-      background: #f3f4f6;
+      background: var(--gray-100);
     }
-    
+
     .preview-wrapper {
       width: 800px;
       margin: 0 auto;
-      background: #fff;
-      padding: 20px;
-      border-radius: 12px;
-      box-shadow: 0 4px 12px rgba(0,0,0,0.08);
+      background: white;
+      padding: var(--space-6);
+      border-radius: var(--radius-xl);
+      box-shadow: var(--shadow-md);
     }
-    
-    .preview-container { 
-      position: relative; 
-      width: 100%; 
-      height: 565px; 
-      border: 1px solid #e5e7eb; 
+
+    .preview-container {
+      position: relative;
+      width: 100%;
+      height: 565px;
+      border: 1px solid var(--gray-200);
       background-size: contain;
       background-repeat: no-repeat;
-      background-position: center; 
-      box-shadow: 0 2px 8px rgba(0,0,0,0.05);
+      background-position: center;
       background-color: white;
       transition: all 0.3s;
     }
+
     .preview-container.drop-active {
-      border: 2px dashed #2563eb;
-      background-color: #f0f7ff;
+      border: 2px dashed var(--primary-600);
+      background-color: var(--primary-50);
     }
-    
-    .draggable { 
-      position: absolute; 
-      padding: 6px 12px; 
-      cursor: move; 
-      border: 1px dashed transparent; 
-      user-select: none; 
+
+    .draggable {
+      position: absolute;
+      padding: var(--space-1) var(--space-3);
+      cursor: move;
+      border: 1px dashed transparent;
+      user-select: none;
       max-width: 80%;
       transition: all 0.2s;
+      font-size: 14px;
     }
-    .draggable.selected { 
-      border: 1px dashed #2563eb; 
-      background: rgba(37,99,235,0.05); 
-      box-shadow: 0 0 0 2px rgba(37, 99, 235, 0.1);
+
+    .draggable.selected {
+      border: 1px dashed var(--primary-600);
+      background: rgba(59, 130, 246, 0.05);
+      box-shadow: 0 0 0 2px rgba(59, 130, 246, 0.1);
     }
+
     .draggable:hover {
       transform: scale(1.02);
     }
@@ -153,174 +297,200 @@
     .compact-toolbar {
       display: flex;
       align-items: center;
-      gap: 10px;
-      padding: 8px 12px;
-      background: #f8f9fa;
-      border-radius: 8px;
-      margin-bottom: 15px;
+      gap: var(--space-3);
+      padding: var(--space-3);
+      background: var(--gray-50);
+      border-radius: var(--radius-lg);
+      margin-bottom: var(--space-5);
       flex-wrap: wrap;
     }
-  .font-control-group {
-  display: flex;
-  align-items: center;
-  gap: 8px;
-  margin-bottom: 10px;
-}
 
-.font-control-group label {
-  font-size: 13px;
-  color: #1a2a6c;
-  font-weight: 500;
-  white-space: nowrap;
-}
+    .font-control-group {
+      display: flex;
+      align-items: center;
+      gap: var(--space-2);
+    }
 
-#font-selector, #font-size {
-  padding: 4px;
-  font-size: 13px;
-  border: 1px solid #ccc;
-  border-radius: 4px;
-}
+    .font-control-group label {
+      font-size: 12px;
+      color: var(--gray-600);
+      font-weight: 500;
+      white-space: nowrap;
+      margin: 0;
+    }
 
-#font-size-range {
-  -webkit-appearance: none;
-  height: 4px;
-  background: #ccc;
-  border-radius: 4px;
-  outline: none;
-  flex: 1;
-}
-
-#font-size-range::-webkit-slider-thumb {
-  -webkit-appearance: none;
-  width: 14px;
-  height: 14px;
-  background: #001f66;
-  border-radius: 50%;
-  cursor: pointer;
-}
-
-#font-color {
-  width: 28px;
-  height: 28px;
-  padding: 0;
-  border: none;
-  border-radius: 50%;
-  cursor: pointer;
-}
-
-    .compact-select {
-      padding: 5px 8px;
-      border: 1px solid #ddd;
-      border-radius: 4px;
-      font-size: 13px;
+    #font-selector, #font-size {
+      padding: var(--space-1);
+      font-size: 12px;
+      border: 1px solid var(--gray-300);
+      border-radius: var(--radius-sm);
       min-width: 80px;
     }
-    
-    .compact-input {
-      width: 50px;
-      padding: 5px;
-      border: 1px solid #ddd;
-      border-radius: 4px;
-      text-align: center;
+
+    #font-size-range {
+      -webkit-appearance: none;
+      width: 80px;
+      height: 4px;
+      background: var(--gray-300);
+      border-radius: 2px;
+      outline: none;
     }
-    
-    .compact-color {
-      width: 30px;
-      height: 30px;
-      padding: 2px;
-    }
-    
-    .compact-buttons {
-      display: flex;
-      gap: 5px;
-      margin-left: auto;
-    }
-    
-    .compact-button {
-      padding: 5px 10px;
-      font-size: 12px;
-      min-width: 70px;
-      border-radius: 4px;
+
+    #font-size-range::-webkit-slider-thumb {
+      -webkit-appearance: none;
+      width: 14px;
+      height: 14px;
+      background: var(--primary-600);
+      border-radius: 50%;
       cursor: pointer;
-      border: 1px solid #d1d5db;
-      background: #fff;
-      transition: all 0.2s;
     }
-    
-    .compact-button:hover {
-      background: #f3f4f6;
+
+    #font-color {
+      width: 24px;
+      height: 24px;
+      padding: 0;
+      border: none;
+      border-radius: 50%;
+      cursor: pointer;
     }
-    
-    .compact-button.secondary {
-      background: #f3f4f6;
-    }
-    
-    .compact-button.danger {
-      background: #fee2e2;
-      color: #dc2626;
-      border-color: #fca5a5;
-    }
-    
-    .compact-button.danger:hover {
-      background: #fecaca;
-    }
-    
+
     .text-format-buttons {
       display: flex;
-      gap: 3px;
+      gap: var(--space-1);
     }
-    
+
     .text-format-buttons button {
       width: 28px;
       height: 28px;
       padding: 0;
       font-size: 12px;
-      border-radius: 4px;
-      border: 1px solid #d1d5db;
-      background: #fff;
+      border-radius: var(--radius-sm);
+      border: 1px solid var(--gray-300);
+      background: white;
       cursor: pointer;
-    }
-    
-    .text-format-buttons button:hover {
-      background: #f3f4f6;
+      display: flex;
+      align-items: center;
+      justify-content: center;
     }
 
-    /* (Mantido o restante do CSS original) */
-    button { 
-      background: #2563eb; 
-      color: #fff; 
-      border: none; 
-      padding: 10px 15px; 
-      border-radius: 6px; 
-      cursor: pointer; 
-      font-weight: 600;
-      flex: 1;
+    .text-format-buttons button:hover {
+      background: var(--gray-100);
+    }
+
+    .compact-buttons {
+      display: flex;
+      gap: var(--space-2);
+      margin-left: auto;
+    }
+
+    /* Botões principais */
+    button {
+      background: var(--primary-600);
+      color: white;
+      border: none;
+      padding: var(--space-3) var(--space-4);
+      border-radius: var(--radius-md);
+      cursor: pointer;
+      font-weight: 500;
+      font-size: 13px;
       transition: all 0.2s;
       display: flex;
       align-items: center;
       justify-content: center;
-      gap: 8px;
+      gap: var(--space-1);
     }
-    button:hover { 
-      background: #1d4ed8; 
+
+    button:hover {
+      background: var(--primary-700);
       transform: translateY(-1px);
     }
+
     button:active {
       transform: translateY(0);
     }
+
     button.secondary {
-      background: #f3f4f6;
-      color: #4b5563;
-      border: 1px solid #d1d5db;
+      background: var(--gray-100);
+      color: var(--gray-600);
+      border: 1px solid var(--gray-300);
     }
+
     button.secondary:hover {
-      background: #e5e7eb;
+      background: var(--gray-200);
     }
+
     button.danger {
-      background: #dc2626;
+      background: var(--red-600);
     }
+
     button.danger:hover {
       background: #b91c1c;
+    }
+
+    .compact-button {
+      padding: var(--space-1) var(--space-2);
+      font-size: 12px;
+      min-width: 70px;
+      border-radius: var(--radius-sm);
+      cursor: pointer;
+      border: 1px solid var(--gray-300);
+      background: white;
+      transition: all 0.2s;
+    }
+
+    .compact-button:hover {
+      background: var(--gray-100);
+    }
+
+    .compact-button.secondary {
+      background: var(--gray-100);
+    }
+
+    .compact-button.danger {
+      background: #fee2e2;
+      color: var(--red-600);
+      border-color: #fca5a5;
+    }
+
+    .compact-button.danger:hover {
+      background: #fecaca;
+    }
+
+    /* Editor de texto */
+    #descricao-certificado {
+      width: 100%;
+      padding: var(--space-3);
+      border: 1px solid var(--gray-300);
+      border-radius: var(--radius-md);
+      resize: vertical;
+      min-height: 100px;
+      font-size: 13px;
+      line-height: 1.5;
+      margin-top: var(--space-2);
+    }
+
+    /* Template thumbnails */
+    .template-thumbnails {
+      display: flex;
+      flex-direction: column;
+      gap: var(--space-2);
+      margin-top: var(--space-3);
+    }
+
+    .template-thumb {
+      width: 100%;
+      height: 70px;
+      background-size: cover;
+      background-position: center;
+      border: 2px solid transparent;
+      border-radius: var(--radius-md);
+      cursor: pointer;
+      transition: all 0.2s;
+    }
+
+    .template-thumb.selected {
+      border-color: var(--primary-600);
+      box-shadow: 0 0 0 2px rgba(59, 130, 246, 0.1);
     }
 
     /* Toast notifications */
@@ -328,19 +498,22 @@
       position: fixed;
       bottom: 20px;
       right: 20px;
-      padding: 12px 20px;
-      background: #10b981;
+      padding: var(--space-3) var(--space-5);
+      background: var(--green-500);
       color: white;
-      border-radius: 8px;
-      box-shadow: 0 4px 12px rgba(0,0,0,0.15);
+      border-radius: var(--radius-md);
+      box-shadow: var(--shadow-lg);
       animation: slideIn 0.3s ease-out;
       z-index: 100;
+      font-size: 13px;
     }
+
     .toast.error {
-      background: #ef4444;
+      background: var(--red-500);
     }
+
     .toast.warning {
-      background: #f59e0b;
+      background: var(--yellow-500);
     }
 
     @keyframes slideIn {
@@ -353,12 +526,63 @@
       background: none;
       border: none;
       cursor: pointer;
-      padding: 5px;
+      padding: var(--space-1);
       display: none;
     }
+
     .toggle-sidebar svg {
       width: 24px;
       height: 24px;
+      stroke: var(--gray-500);
+    }
+
+    /* Prompt sugestões */
+    .prompt-sugestoes {
+      display: flex;
+      gap: var(--space-2);
+      margin: var(--space-2) 0;
+      flex-wrap: wrap;
+    }
+
+    .prompt-sugestoes button {
+      padding: var(--space-1) var(--space-2);
+      font-size: 12px;
+      background: var(--gray-100);
+      color: var(--gray-600);
+      border-radius: var(--radius-sm);
+      border: 1px solid var(--gray-300);
+    }
+
+    .prompt-sugestoes button:hover {
+      background: var(--gray-200);
+    }
+
+    /* Chat histórico */
+    #chat-historico {
+      margin-top: var(--space-3);
+      border: 1px solid var(--gray-200);
+      border-radius: var(--radius-md);
+      padding: var(--space-3);
+      background: var(--gray-50);
+      max-height: 200px;
+      overflow-y: auto;
+    }
+
+    #chat-historico .mensagem-usuario {
+      background-color: #e6f2ff;
+      padding: var(--space-2);
+      border-radius: var(--radius-sm);
+      margin-bottom: var(--space-1);
+      font-size: 13px;
+    }
+
+    #chat-historico .mensagem-ia {
+      background-color: white;
+      padding: var(--space-2);
+      border-radius: var(--radius-sm);
+      margin-bottom: var(--space-1);
+      font-size: 13px;
+      border: 1px solid var(--gray-200);
     }
 
     /* Responsive adjustments */
@@ -367,9 +591,10 @@
         width: 100%;
       }
       .form-column {
-        width: 250px;
+        width: 280px;
       }
     }
+
     @media (max-width: 992px) {
       .main {
         flex-direction: column;
@@ -377,166 +602,135 @@
       .form-column {
         width: 100%;
         border-right: none;
-        border-bottom: 1px solid #ddd;
+        border-bottom: 1px solid var(--gray-200);
       }
       .preview-column {
-        padding: 15px;
+        padding: var(--space-4);
       }
     }
-.template-thumbnails {
-  display: flex;
-  flex-direction: column;
-  gap: 10px;
-  margin-top: 10px;
-}
-
-.template-thumb {
-  width: 100%;
-  height: 70px;
-  background-size: cover;
-  background-position: center;
-  border: 2px solid transparent;
-  border-radius: 6px;
-  cursor: pointer;
-  transition: border-color 0.2s;
-}
-
-.template-thumb.selected {
-  border-color: #2563eb;
-}
-
-#chat-historico .mensagem-usuario {
-  background-color: #e6f2ff;
-  padding: 6px;
-  border-radius: 5px;
-  margin-bottom: 5px;
-}
-#chat-historico .mensagem-ia {
-  background-color: #f9f9f9;
-  padding: 6px;
-  border-radius: 5px;
-  margin-bottom: 5px;
-}
   </style>
 </head>
-  <body>
-    <!-- SIDEBAR -->
-    <div class="sidebar">
-      <img src="https://cdn-icons-png.flaticon.com/512/747/747376.png" class="logo" alt="Logo">
-      <img src="https://cdn-icons-png.flaticon.com/512/747/747376.png" title="Gerador">
-      <img src="https://cdn-icons-png.flaticon.com/512/1828/1828843.png" title="Relatórios">
-      <img src="https://cdn-icons-png.flaticon.com/512/992/992680.png" title="Sair">
-    </div>
+<body>
+  <!-- SIDEBAR -->
+  <div class="sidebar">
+    <img src="https://cdn-icons-png.flaticon.com/512/747/747376.png" class="logo" alt="Logo">
+    <img src="https://cdn-icons-png.flaticon.com/512/747/747376.png" title="Gerador">
+    <img src="https://cdn-icons-png.flaticon.com/512/1828/1828843.png" title="Relatórios">
+    <img src="https://cdn-icons-png.flaticon.com/512/992/992680.png" title="Sair">
+  </div>
 
-    <!-- MAIN -->
-    <div class="main">
-      <!-- LATERAL ESQUERDA -->
-      <div class="form-column" id="form-column">
-        <button class="toggle-sidebar" onclick="toggleSidebar()">
-          <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 5l7 7-7 7M5 5l7 7-7 7" />
-          </svg>
-        </button>
-        
-        <h1>Editor de Certificado</h1>
-        
-        <label>Upload do Excel:</label>
-        <div class="upload-area" id="upload-area">
-          <p>Arraste seu arquivo Excel aqui ou</p>
-          <input type="file" id="excel-upload" accept=".xls,.xlsx" style="display: none;" />
-          <button class="secondary" onclick="document.getElementById('excel-upload').click()">Selecionar Arquivo</button>
-          <p style="font-size: 12px; color: #6b7280; margin-top: 8px;">Formatos suportados: .xls, .xlsx</p>
-        </div>
-
-        <label>Campos do Excel (arraste para o certificado):</label>
-        <div id="excel-columns" class="mapping-columns">
-          <p style="color:#6b7280;font-size:12px;text-align:center;width:100%;">Faça upload do Excel para carregar as colunas...</p>
-        </div>
-        
-        <div style="margin-top: 20px;">
-          <label for="template">Selecione Template:</label>
-          <select id="template">
-            <option value="/storage/templates/template_certificado_1.jpg">Graduação Odontologia</option>
-            <option value="/storage/templates/template_certificado_2.jpg">Pós-Odontologia</option>
-            <option value="/storage/templates/template_certificado_3.jpg">SLMandic</option>
-          </select>
-          <div id="template-thumbnails" class="template-thumbnails"></div>
-          </div>
+  <!-- MAIN -->
+  <div class="main">
+    <!-- LATERAL ESQUERDA -->
+    <div class="form-column" id="form-column">
+      <button class="toggle-sidebar" onclick="toggleSidebar()">
+        <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 5l7 7-7 7M5 5l7 7-7 7" />
+        </svg>
+      </button>
+      
+      <h1>Editor de Certificado</h1>
+      
+      <label>Upload do Excel:</label>
+      <div class="upload-area" id="upload-area">
+        <p>Arraste seu arquivo Excel aqui ou</p>
+        <input type="file" id="excel-upload" accept=".xls,.xlsx" style="display: none;" />
+        <button class="secondary" onclick="document.getElementById('excel-upload').click()">Selecionar Arquivo</button>
+        <p style="font-size: 12px; color: var(--gray-500); margin-top: var(--space-2);">Formatos suportados: .xls, .xlsx</p>
       </div>
 
-      <!-- PREVIEW + CONTROLES COMPACTOS -->
-      <div class="preview-column">
-        <div class="preview-wrapper">
-          <!-- Nova barra de controles compacta -->
-          <div class="compact-toolbar">
-        <div class="font-control-group">
-    <label for="font-selector">Fonte</label>
-    <select id="font-selector">
-      <option value="Work Sans">Work Sans</option>
-      <option value="Roboto">Roboto</option>
-      <option value="Arial">Arial</option>
-    </select>
-  </div>
-
-  <div class="font-control-group">
-    <label for="font-color">Cor</label>
-    <input type="color" id="font-color" value="#000000">
-  </div>
-
-  <div class="font-control-group">
-    <label for="font-size">Tamanho da Fonte</label>
-    <input type="range" id="font-size-range" min="8" max="52" value="24">
-    <input type="number" id="font-size" min="8" max="52" value="24">
-  </div>
-
-            
-            <div class="text-format-buttons">
-              <button data-command="bold" title="Negrito"><b>B</b></button>
-              <button data-command="italic" title="Itálico"><i>I</i></button>
-              <button data-command="underline" title="Sublinhado"><u>S</u></button>
-            </div>
-            
-            <div class="compact-buttons">
-              <label for="prompt">Personalizar texto do certificado:</label>
-  <textarea id="prompt" name="prompt" rows="4" placeholder="Digite aqui como quer que o certificado seja gerado..."></textarea>
-  <div class="prompt-sugestoes">
-  <button onclick="usarSugestao('Deixe o texto mais formal.')">+ Formal</button>
-  <button onclick="usarSugestao('Adicione agradecimentos ao corpo docente.')">+ Agradecimento</button>
-  <button onclick="usarSugestao('Resuma o texto em uma linha.')">+ Resumo</button>
-</div>
-  <button onclick="refinarTexto()">Refinar com esse prompt</button>
-  <button onclick="gerarTextoCertificado()">Gerar Texto</button>
-  <button onclick="limparHistorico()">Novo Texto</button>
-<div id="chat-historico"></div>
-
-              <button id="auto-position" class="compact-button" title="Auto-Posicionar">Posicionar</button>
-              <button id="delete-field" class="compact-button danger" title="Remover">Remover</button>
-              <button id="save-layout" class="compact-button secondary" title="Salvar">Salvar</button>
-            </div>
-          </div>
-
-          <!-- Editor de texto -->
-          <div style="margin-top: 20px;">
-            <label for="descricao-certificado">Texto do Certificado:</label>
-            <textarea id="descricao-certificado" rows="4" style="width: 100%; padding: 10px; border: 1px solid #d1d5db; border-radius: 6px; resize: vertical;">
-  Certificamos que [NOME] concluiu o curso de [CURSO], com carga horária de [CARGA HORARIA], na [UNIDADE].
-            </textarea>
-            @csrf
-              <input type="hidden" name="descricao" id="descricao-certificado-input" value="">
-            <button id="add-descricao" style="margin-top: 10px; width:100%;">
-              <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-                <line x1="12" y1="5" x2="12" y2="19"></line>
-                <line x1="5" y1="12" x2="19" y2="12"></line>
-              </svg>
-              Adicionar/Atualizar Texto
-            </button>
-          </div>
-
-          <!-- Preview do certificado -->
-          <div class="preview-container" id="preview"></div>
-        </div>
+      <label>Campos do Excel (arraste para o certificado):</label>
+      <div id="excel-columns" class="mapping-columns">
+        <p style="color: var(--gray-500); font-size: 12px; text-align: center; width: 100%;">Faça upload do Excel para carregar as colunas...</p>
+      </div>
+      
+      <div style="margin-top: var(--space-5);">
+        <label for="template">Selecione Template:</label>
+        <select id="template">
+          <option value="/storage/templates/template_certificado_1.jpg">Graduação Odontologia</option>
+          <option value="/storage/templates/template_certificado_2.jpg">Pós-Odontologia</option>
+          <option value="/storage/templates/template_certificado_3.jpg">SLMandic</option>
+        </select>
+        <div id="template-thumbnails" class="template-thumbnails"></div>
       </div>
     </div>
+
+    <!-- PREVIEW + CONTROLES COMPACTOS -->
+    <div class="preview-column">
+      <div class="preview-wrapper">
+        <!-- Nova barra de controles compacta -->
+        <div class="compact-toolbar">
+          <div class="font-control-group">
+            <label for="font-selector">Fonte</label>
+            <select id="font-selector">
+              <option value="Work Sans">Work Sans</option>
+              <option value="Roboto">Roboto</option>
+              <option value="Arial">Arial</option>
+            </select>
+          </div>
+
+          <div class="font-control-group">
+            <label for="font-color">Cor</label>
+            <input type="color" id="font-color" value="#000000">
+          </div>
+
+          <div class="font-control-group">
+            <label for="font-size">Tamanho</label>
+            <input type="range" id="font-size-range" min="8" max="52" value="24">
+            <input type="number" id="font-size" min="8" max="52" value="24" style="width: 50px;">
+          </div>
+          
+          <div class="text-format-buttons">
+            <button data-command="bold" title="Negrito"><b>B</b></button>
+            <button data-command="italic" title="Itálico"><i>I</i></button>
+            <button data-command="underline" title="Sublinhado"><u>S</u></button>
+          </div>
+          
+          <div class="compact-buttons">
+            <button id="auto-position" class="compact-button" title="Auto-Posicionar">Posicionar</button>
+            <button id="delete-field" class="compact-button danger" title="Remover">Remover</button>
+            <button id="save-layout" class="compact-button secondary" title="Salvar">Salvar</button>
+          </div>
+        </div>
+
+        <!-- Editor de texto -->
+        <div style="margin-top: var(--space-5);">
+          <label for="prompt">Personalizar texto do certificado:</label>
+          <textarea id="prompt" placeholder="Digite aqui como quer que o certificado seja gerado..."></textarea>
+          
+          <div class="prompt-sugestoes">
+            <button onclick="usarSugestao('Deixe o texto mais formal.')">+ Formal</button>
+            <button onclick="usarSugestao('Adicione agradecimentos ao corpo docente.')">+ Agradecimento</button>
+            <button onclick="usarSugestao('Resuma o texto em uma linha.')">+ Resumo</button>
+          </div>
+          
+          <div style="display: flex; gap: var(--space-2); margin-top: var(--space-3);">
+            <button onclick="refinarTexto()">Refinar com esse prompt</button>
+            <button onclick="gerarTextoCertificado()">Gerar Texto</button>
+            <button onclick="limparHistorico()" class="secondary">Novo Texto</button>
+          </div>
+          
+          <div id="chat-historico"></div>
+          
+          <label for="descricao-certificado">Texto do Certificado:</label>
+          <textarea id="descricao-certificado" rows="4">
+CERTIFICAMOS, por meio deste, que Raphael concluiu con êxito o curso de Odontologia, cumprindo uma carga horária total de 200 horas. De referido curso foi realizado na unidade de Campinas, com a data de conclusão registrada em 20 de julho de 2025. Agradecemos ao corpo docente pela excelência na condução das atividades acadêmicas, cuja dedicação e comprometimento foram fundamentais para a formação do aluno.
+          </textarea>
+          
+          <button id="add-descricao" style="margin-top: var(--space-3); width:100%;">
+            <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+              <line x1="12" y1="5" x2="12" y2="19"></line>
+              <line x1="5" y1="12" x2="19" y2="12"></line>
+            </svg>
+            Adicionar/Atualizar Texto
+          </button>
+        </div>
+
+        <!-- Preview do certificado -->
+        <div class="preview-container" id="preview"></div>
+      </div>
+    </div>
+  </div>
 
   <script>
   // Estado global da aplicação
@@ -1192,7 +1386,7 @@ function atualizarHistoricoUI(historico) {
     .filter(msg => msg.role !== "system")
     .map(msg => {
       const classe = msg.role === "user" ? "mensagem-usuario" : "mensagem-ia";
-      return `<div class="${classe}"><strong>${msg.role}:</strong> ${msg.content}</div>`;
+      ;
     })
     .join("");
 }
