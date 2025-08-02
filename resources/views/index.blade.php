@@ -405,121 +405,138 @@
   border-color: #2563eb;
 }
 
-
-
+#chat-historico .mensagem-usuario {
+  background-color: #e6f2ff;
+  padding: 6px;
+  border-radius: 5px;
+  margin-bottom: 5px;
+}
+#chat-historico .mensagem-ia {
+  background-color: #f9f9f9;
+  padding: 6px;
+  border-radius: 5px;
+  margin-bottom: 5px;
+}
   </style>
 </head>
-<body>
-  <!-- SIDEBAR -->
-  <div class="sidebar">
-    <img src="https://cdn-icons-png.flaticon.com/512/747/747376.png" class="logo" alt="Logo">
-    <img src="https://cdn-icons-png.flaticon.com/512/747/747376.png" title="Gerador">
-    <img src="https://cdn-icons-png.flaticon.com/512/1828/1828843.png" title="Relatórios">
-    <img src="https://cdn-icons-png.flaticon.com/512/992/992680.png" title="Sair">
-  </div>
-
-  <!-- MAIN -->
-  <div class="main">
-    <!-- LATERAL ESQUERDA -->
-    <div class="form-column" id="form-column">
-      <button class="toggle-sidebar" onclick="toggleSidebar()">
-        <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 5l7 7-7 7M5 5l7 7-7 7" />
-        </svg>
-      </button>
-      
-      <h1>Editor de Certificado</h1>
-      
-      <label>Upload do Excel:</label>
-      <div class="upload-area" id="upload-area">
-        <p>Arraste seu arquivo Excel aqui ou</p>
-        <input type="file" id="excel-upload" accept=".xls,.xlsx" style="display: none;" />
-        <button class="secondary" onclick="document.getElementById('excel-upload').click()">Selecionar Arquivo</button>
-        <p style="font-size: 12px; color: #6b7280; margin-top: 8px;">Formatos suportados: .xls, .xlsx</p>
-      </div>
-
-      <label>Campos do Excel (arraste para o certificado):</label>
-      <div id="excel-columns" class="mapping-columns">
-        <p style="color:#6b7280;font-size:12px;text-align:center;width:100%;">Faça upload do Excel para carregar as colunas...</p>
-      </div>
-      
-      <div style="margin-top: 20px;">
-        <label for="template">Selecione Template:</label>
-        <select id="template">
-          <option value="/storage/templates/template_certificado_1.jpg">Graduação Odontologia</option>
-          <option value="/storage/templates/template_certificado_2.jpg">Pós-Odontologia</option>
-          <option value="/storage/templates/template_certificado_3.jpg">SLMandic</option>
-        </select>
-        <div id="template-thumbnails" class="template-thumbnails"></div>
-        </div>
+  <body>
+    <!-- SIDEBAR -->
+    <div class="sidebar">
+      <img src="https://cdn-icons-png.flaticon.com/512/747/747376.png" class="logo" alt="Logo">
+      <img src="https://cdn-icons-png.flaticon.com/512/747/747376.png" title="Gerador">
+      <img src="https://cdn-icons-png.flaticon.com/512/1828/1828843.png" title="Relatórios">
+      <img src="https://cdn-icons-png.flaticon.com/512/992/992680.png" title="Sair">
     </div>
 
-    <!-- PREVIEW + CONTROLES COMPACTOS -->
-    <div class="preview-column">
-      <div class="preview-wrapper">
-        <!-- Nova barra de controles compacta -->
-        <div class="compact-toolbar">
-       <div class="font-control-group">
-  <label for="font-selector">Fonte</label>
-  <select id="font-selector">
-    <option value="Work Sans">Work Sans</option>
-    <option value="Roboto">Roboto</option>
-    <option value="Arial">Arial</option>
-  </select>
-</div>
-
-<div class="font-control-group">
-  <label for="font-color">Cor</label>
-  <input type="color" id="font-color" value="#000000">
-</div>
-
-<div class="font-control-group">
-  <label for="font-size">Tamanho da Fonte</label>
-  <input type="range" id="font-size-range" min="8" max="52" value="24">
-  <input type="number" id="font-size" min="8" max="52" value="24">
-</div>
-
-          
-          <div class="text-format-buttons">
-            <button data-command="bold" title="Negrito"><b>B</b></button>
-            <button data-command="italic" title="Itálico"><i>I</i></button>
-            <button data-command="underline" title="Sublinhado"><u>S</u></button>
-          </div>
-          
-          <div class="compact-buttons">
-            <label for="prompt">Personalizar texto do certificado:</label>
-<textarea id="prompt" name="prompt" rows="4" placeholder="Digite aqui como quer que o certificado seja gerado..."></textarea>
-
-<button onclick="gerarTextoCertificado()">Gerar Texto</button>
-
-            <button id="auto-position" class="compact-button" title="Auto-Posicionar">Posicionar</button>
-            <button id="delete-field" class="compact-button danger" title="Remover">Remover</button>
-            <button id="save-layout" class="compact-button secondary" title="Salvar">Salvar</button>
-          </div>
+    <!-- MAIN -->
+    <div class="main">
+      <!-- LATERAL ESQUERDA -->
+      <div class="form-column" id="form-column">
+        <button class="toggle-sidebar" onclick="toggleSidebar()">
+          <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 5l7 7-7 7M5 5l7 7-7 7" />
+          </svg>
+        </button>
+        
+        <h1>Editor de Certificado</h1>
+        
+        <label>Upload do Excel:</label>
+        <div class="upload-area" id="upload-area">
+          <p>Arraste seu arquivo Excel aqui ou</p>
+          <input type="file" id="excel-upload" accept=".xls,.xlsx" style="display: none;" />
+          <button class="secondary" onclick="document.getElementById('excel-upload').click()">Selecionar Arquivo</button>
+          <p style="font-size: 12px; color: #6b7280; margin-top: 8px;">Formatos suportados: .xls, .xlsx</p>
         </div>
 
-        <!-- Editor de texto -->
+        <label>Campos do Excel (arraste para o certificado):</label>
+        <div id="excel-columns" class="mapping-columns">
+          <p style="color:#6b7280;font-size:12px;text-align:center;width:100%;">Faça upload do Excel para carregar as colunas...</p>
+        </div>
+        
         <div style="margin-top: 20px;">
-          <label for="descricao-certificado">Texto do Certificado:</label>
-          <textarea id="descricao-certificado" rows="4" style="width: 100%; padding: 10px; border: 1px solid #d1d5db; border-radius: 6px; resize: vertical;">
-Certificamos que [NOME] concluiu o curso de [CURSO], com carga horária de [CARGA HORARIA], na [UNIDADE].
-          </textarea>
-          @csrf
-            <input type="hidden" name="descricao" id="descricao-certificado-input" value="">
-          <button id="add-descricao" style="margin-top: 10px; width:100%;">
-            <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-              <line x1="12" y1="5" x2="12" y2="19"></line>
-              <line x1="5" y1="12" x2="19" y2="12"></line>
-            </svg>
-            Adicionar/Atualizar Texto
-          </button>
-        </div>
+          <label for="template">Selecione Template:</label>
+          <select id="template">
+            <option value="/storage/templates/template_certificado_1.jpg">Graduação Odontologia</option>
+            <option value="/storage/templates/template_certificado_2.jpg">Pós-Odontologia</option>
+            <option value="/storage/templates/template_certificado_3.jpg">SLMandic</option>
+          </select>
+          <div id="template-thumbnails" class="template-thumbnails"></div>
+          </div>
+      </div>
 
-        <!-- Preview do certificado -->
-        <div class="preview-container" id="preview"></div>
+      <!-- PREVIEW + CONTROLES COMPACTOS -->
+      <div class="preview-column">
+        <div class="preview-wrapper">
+          <!-- Nova barra de controles compacta -->
+          <div class="compact-toolbar">
+        <div class="font-control-group">
+    <label for="font-selector">Fonte</label>
+    <select id="font-selector">
+      <option value="Work Sans">Work Sans</option>
+      <option value="Roboto">Roboto</option>
+      <option value="Arial">Arial</option>
+    </select>
+  </div>
+
+  <div class="font-control-group">
+    <label for="font-color">Cor</label>
+    <input type="color" id="font-color" value="#000000">
+  </div>
+
+  <div class="font-control-group">
+    <label for="font-size">Tamanho da Fonte</label>
+    <input type="range" id="font-size-range" min="8" max="52" value="24">
+    <input type="number" id="font-size" min="8" max="52" value="24">
+  </div>
+
+            
+            <div class="text-format-buttons">
+              <button data-command="bold" title="Negrito"><b>B</b></button>
+              <button data-command="italic" title="Itálico"><i>I</i></button>
+              <button data-command="underline" title="Sublinhado"><u>S</u></button>
+            </div>
+            
+            <div class="compact-buttons">
+              <label for="prompt">Personalizar texto do certificado:</label>
+  <textarea id="prompt" name="prompt" rows="4" placeholder="Digite aqui como quer que o certificado seja gerado..."></textarea>
+  <div class="prompt-sugestoes">
+  <button onclick="usarSugestao('Deixe o texto mais formal.')">+ Formal</button>
+  <button onclick="usarSugestao('Adicione agradecimentos ao corpo docente.')">+ Agradecimento</button>
+  <button onclick="usarSugestao('Resuma o texto em uma linha.')">+ Resumo</button>
+</div>
+  <button onclick="refinarTexto()">Refinar com esse prompt</button>
+  <button onclick="gerarTextoCertificado()">Gerar Texto</button>
+  <button onclick="limparHistorico()">Novo Texto</button>
+<div id="chat-historico"></div>
+
+              <button id="auto-position" class="compact-button" title="Auto-Posicionar">Posicionar</button>
+              <button id="delete-field" class="compact-button danger" title="Remover">Remover</button>
+              <button id="save-layout" class="compact-button secondary" title="Salvar">Salvar</button>
+            </div>
+          </div>
+
+          <!-- Editor de texto -->
+          <div style="margin-top: 20px;">
+            <label for="descricao-certificado">Texto do Certificado:</label>
+            <textarea id="descricao-certificado" rows="4" style="width: 100%; padding: 10px; border: 1px solid #d1d5db; border-radius: 6px; resize: vertical;">
+  Certificamos que [NOME] concluiu o curso de [CURSO], com carga horária de [CARGA HORARIA], na [UNIDADE].
+            </textarea>
+            @csrf
+              <input type="hidden" name="descricao" id="descricao-certificado-input" value="">
+            <button id="add-descricao" style="margin-top: 10px; width:100%;">
+              <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                <line x1="12" y1="5" x2="12" y2="19"></line>
+                <line x1="5" y1="12" x2="19" y2="12"></line>
+              </svg>
+              Adicionar/Atualizar Texto
+            </button>
+          </div>
+
+          <!-- Preview do certificado -->
+          <div class="preview-container" id="preview"></div>
+        </div>
       </div>
     </div>
-  </div>
 
   <script>
   // Estado global da aplicação
@@ -1079,39 +1096,31 @@ buttons.forEach(button => {
   return date.toISOString().split('T')[0]; // Exemplo: 2025-08-01
 }
 
-  async function gerarTextoCertificado() {
-  if (!state.excelData) {
-    console.error('state.excelData está vazio ou indefinido');
-  } else if (!state.excelData.dados) {
-    console.error('state.excelData.dados não existe');
-  } else if (!state.excelData.dados.length) {
-    console.error('state.excelData.dados está vazio');
-  } else {
-    console.log('Dados do Excel:', state.excelData.dados);
+ async function gerarTextoCertificado() {
+  if (!state.excelData || !state.excelData.dados || !state.excelData.dados.length) {
+    console.error('Excel está vazio ou mal formatado');
+    showToast("Nenhum dado de Excel encontrado!", "error");
+    return;
   }
 
+  const aluno = state.excelData.dados[0];
+  console.log("aluno:", aluno);
+
+  const promptExtra = document.querySelector("#prompt")?.value?.trim() || "";
+
+  const payload = {
+    nome: aluno['nome ']?.trim(),
+    curso: aluno['curso']?.trim(),
+    carga_horaria: aluno['carga horaria']?.toString(),
+    data_conclusao: excelSerialToDate(aluno['data conclusão']),
+    unidade: aluno['unidade ']?.trim(),
+    historico: state.historico || [],
+    prompt_extra: promptExtra
+  };
+
+  console.log("📤 Enviando payload:", payload);
+
   try {
-    console.log("state.excelData:", state.excelData);
-
-    if (!state.excelData || !state.excelData.dados || !state.excelData.dados.length) {
-      showToast("Nenhum dado de Excel encontrado!", "error");
-      return;
-    }
-
-    const aluno = state.excelData.dados[0];
-    console.log("aluno:", aluno);
-
-const payload = {
-  nome: aluno['nome '].trim(),
-  curso: aluno['curso'].trim(),
-  carga_horaria: aluno['carga horaria'].toString(),
-  data_conclusao: excelSerialToDate(aluno['data conclusão']),
-  unidade: aluno['unidade '].trim(),
-  historico: state.historico || []
-};
-
-    console.log("📤 Enviando payload:", payload);
-
     const response = await fetch("/certificados/gerar-texto", {
       method: "POST",
       headers: {
@@ -1140,6 +1149,13 @@ const payload = {
       document.querySelector("#descricao-certificado").value = data.texto;
       addDescricaoTexto();
       showToast("Texto do certificado gerado com sucesso!");
+      document.querySelector("#prompt").value = "";
+
+      // 🔁 Atualiza o histórico para continuar a conversa
+      if (data.historico) {
+      state.historico = data.historico;
+      atualizarHistoricoUI(state.historico);
+    }
     } else {
       showToast("Erro: " + data.mensagem, "error");
     }
@@ -1147,6 +1163,38 @@ const payload = {
     console.error("❌ Erro na requisição:", err);
     showToast("Falha na comunicação com o servidor", "error");
   }
+}
+
+function refinarTexto() {
+  gerarTextoCertificado(); // mesma função, ela já usa o histórico
+}
+
+function limparHistorico() {
+  state.historico = [];
+  document.querySelector("#prompt").value = "";
+  document.querySelector("#descricao-certificado").value = "";
+}
+
+function usarSugestao(sugestao) {
+  document.querySelector("#prompt").value = sugestao;
+}
+
+function atualizarHistoricoUI(historico) {
+  if (!historico || !Array.isArray(historico)) {
+    console.warn("Histórico ausente ou inválido:", historico);
+    return;
+  }
+
+  const div = document.querySelector("#chat-historico");
+  if (!div) return;
+
+  div.innerHTML = historico
+    .filter(msg => msg.role !== "system")
+    .map(msg => {
+      const classe = msg.role === "user" ? "mensagem-usuario" : "mensagem-ia";
+      return `<div class="${classe}"><strong>${msg.role}:</strong> ${msg.content}</div>`;
+    })
+    .join("");
 }
 
   </script>

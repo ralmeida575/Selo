@@ -325,7 +325,6 @@ public function previewCertificado(Request $request)
     }
 }
 
-
 public function gerarTextoCertificado(Request $request)
 {
     $request->validate([
@@ -337,19 +336,23 @@ public function gerarTextoCertificado(Request $request)
     ]);
 
     try {
-        // Monta o prompt inicial
+        $promptExtra = $request->input('prompt_extra', '');
+
         $prompt = "Escreva um texto formal de certificado de conclusão de curso, como no exemplo:
-        Exemplo:
-        'Certificamos que João Silva concluiu o curso de Administração, com carga horária de 200 horas, realizado na unidade Campinas, em 20/07/2025.'
+Exemplo:
+'Certificamos que João Silva concluiu o curso de Administração, com carga horária de 200 horas, realizado na unidade Campinas, em 20/07/2025.'
 
-        Agora gere para:
-        Nome: {$request->nome}
-        Curso: {$request->curso}
-        Carga horária: {$request->carga_horaria} horas
-        Data de conclusão: {$request->data_conclusao}
-        Unidade: {$request->unidade}";
+Agora gere para:
+Nome: {$request->nome}
+Curso: {$request->curso}
+Carga horária: {$request->carga_horaria} horas
+Data de conclusão: {$request->data_conclusao}
+Unidade: {$request->unidade}";
 
-        // Histórico de mensagens (pode vir do frontend ou sessão)
+        if (!empty(trim($promptExtra))) {
+            $prompt .= "\n\nInstruções adicionais: " . $promptExtra;
+        }
+
         $historico = $request->input('historico', []);
 
         $messages = array_merge(
@@ -358,8 +361,8 @@ public function gerarTextoCertificado(Request $request)
             [['role' => 'user', 'content' => $prompt]]
         );
 
-        // Chama a API da OpenAI usando o endpoint de chat
         $client = OpenAI::client(env('OPENAI_API_KEY'));
+
         $response = $client->chat()->create([
             'model' => 'gpt-4o-mini',
             'messages' => $messages,
@@ -368,7 +371,6 @@ public function gerarTextoCertificado(Request $request)
 
         $textoGerado = trim($response->choices[0]->message->content);
 
-        // Atualiza histórico para retorno
         $historicoAtualizado = array_merge($historico, [
             ['role' => 'user', 'content' => $prompt],
             ['role' => 'assistant', 'content' => $textoGerado],
@@ -382,15 +384,15 @@ public function gerarTextoCertificado(Request $request)
     } catch (\Exception $e) {
         \Log::error("Erro ao gerar texto do certificado: " . $e->getMessage());
 
-        // Fallback: texto padrão caso a IA falhe
+        $historico = $request->input('historico', []);
+
         return response()->json([
-            'status' => 'success',
-            'texto' => "Certificamos que {$request->nome} concluiu o curso de {$request->curso}, com carga horária de {$request->carga_horaria} horas, realizado na unidade {$request->unidade}, em {$request->data_conclusao}.",
+            'status'    => 'success',
+            'texto'     => "Certificamos que {$request->nome} concluiu o curso de {$request->curso}, com carga horária de {$request->carga_horaria} horas, realizado na unidade {$request->unidade}, em {$request->data_conclusao}.",
+            'historico' => $historico,
         ]);
     }
 }
-
-
 
 
 }       
