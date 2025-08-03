@@ -9,7 +9,6 @@
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
   <style>
     @layer components {
-      /* Estilos customizados que não existem no Tailwind */
       .template-thumb {
         @apply w-full h-[70px] bg-cover bg-center cursor-pointer transition-all border-2 border-transparent rounded-md;
       }
@@ -34,28 +33,26 @@
     }
 
     .draggable {
-  position: absolute;
-  padding: 0.5rem 1rem;
-  cursor: move;
-  border: 1px solid transparent;
-  user-select: none;
-  max-width: 80%;
-  transition: all 0.2s;
-  font-size: 14px;
-  background-color: rgba(255, 255, 255, 0.8);
-  z-index: 10;
-}
+      position: absolute;
+      padding: 0.5rem 1rem;
+      cursor: move;
+      border: 1px solid transparent;
+      user-select: none;
+      max-width: 80%;
+      transition: all 0.2s;
+      font-size: 14px;
+      z-index: 10;
+    }
 
-.draggable.selected {
-  border: 1px solid #3b82f6;
-  background-color: rgba(239, 246, 255, 0.9);
-  box-shadow: 0 1px 3px rgba(59, 130, 246, 0.1);
-}
+    .draggable.selected {
+      border: 1px solid #3b82f6;
+      box-shadow: 0 1px 3px rgba(59, 130, 246, 0.1);
+    }
 
-.preview-container.drop-active {
-  border: 2px dashed #3b82f6;
-  background-color: rgba(239, 246, 255, 0.5);
-}
+    .preview-container.drop-active {
+      border: 2px dashed #3b82f6;
+      background-color: rgba(239, 246, 255, 0.5);
+    }
   </style>
 </head>
 <body class="font-sans text-gray-900 bg-gray-50 flex h-screen overflow-hidden">
@@ -79,14 +76,9 @@
   <div class="flex-1 flex flex-col overflow-hidden">
     <div class="flex flex-1 overflow-hidden">
       <!-- LATERAL ESQUERDA -->
-      <div class="w-72 bg-white p-6 border-r border-gray-200 overflow-y-auto transition-all duration-300" id="form-column">
+      <div class="w-72 bg-white p-6 border-r border-gray-200 overflow-y-auto">
         <div class="flex justify-between items-center mb-6 pb-4 border-b border-gray-200">
           <h1 class="text-lg font-semibold text-gray-900">Editor de Certificado</h1>
-          <button class="toggle-sidebar hidden p-1 text-gray-500 hover:text-gray-700" onclick="toggleSidebar()">
-            <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" viewBox="0 0 20 20" fill="currentColor">
-              <path fill-rule="evenodd" d="M7.293 14.707a1 1 0 010-1.414L10.586 10 7.293 6.707a1 1 0 011.414-1.414l4 4a1 1 0 010 1.414l-4 4a1 1 0 01-1.414 0z" clip-rule="evenodd" />
-            </svg>
-          </button>
         </div>
         
         <div class="space-y-6">
@@ -124,7 +116,7 @@
         </div>
       </div>
 
-      <!-- ÁREA DE PREVIEW -->
+      <!-- ÁREA CENTRAL DE PREVIEW (RESTAURADA COMPLETAMENTE) -->
       <div class="flex-1 flex flex-col overflow-auto bg-gray-50 p-6">
         <div class="max-w-4xl w-full mx-auto bg-white rounded-xl shadow-sm p-6">
           <!-- Barra de ferramentas -->
@@ -177,62 +169,69 @@
             </div>
           </div>
 
-          <!-- Editor de texto -->
-          <div class="space-y-4">
-            <div>
-              <label for="prompt" class="block text-sm font-medium text-gray-700 mb-2">Personalizar texto do certificado:</label>
-              <textarea id="prompt" rows="3" class="w-full px-3 py-2 border border-gray-300 rounded-lg text-sm focus:ring-blue-500 focus:border-blue-500 transition-colors" placeholder="Digite aqui como quer que o certificado seja gerado..."></textarea>
-              
-              <div class="prompt-sugestoes flex gap-2 mt-2 flex-wrap">
-                <button onclick="usarSugestao('Deixe o texto mais formal.')" class="text-xs px-3 py-1 bg-gray-100 text-gray-700 rounded-md border border-gray-300 hover:bg-gray-200 transition-colors">
-                  + Formal
-                </button>
-                <button onclick="usarSugestao('Adicione agradecimentos ao corpo docente.')" class="text-xs px-3 py-1 bg-gray-100 text-gray-700 rounded-md border border-gray-300 hover:bg-gray-200 transition-colors">
-                  + Agradecimento
-                </button>
-                <button onclick="usarSugestao('Resuma o texto em uma linha.')" class="text-xs px-3 py-1 bg-gray-100 text-gray-700 rounded-md border border-gray-300 hover:bg-gray-200 transition-colors">
-                  + Resumo
-                </button>
-              </div>
-              
-              <div class="flex gap-3 mt-3">
-                <button onclick="refinarTexto()" class="flex-1 bg-blue-600 hover:bg-blue-700 text-white font-medium py-2 px-4 rounded-lg transition-colors flex items-center justify-center gap-2">
-                  Refinar com esse prompt
-                </button>
-                <button onclick="gerarTextoCertificado()" class="flex-1 bg-blue-600 hover:bg-blue-700 text-white font-medium py-2 px-4 rounded-lg transition-colors flex items-center justify-center gap-2">
-                  Gerar Texto
-                </button>
-                <button onclick="limparHistorico()" class="flex-1 bg-gray-100 hover:bg-gray-200 text-gray-700 font-medium py-2 px-4 rounded-lg border border-gray-300 transition-colors flex items-center justify-center gap-2">
-                  Novo Texto
-                </button>
-              </div>
-              
-              <div id="chat-historico" class="mt-4 border border-gray-200 rounded-lg p-3 bg-gray-50 max-h-48 overflow-y-auto"></div>
-            </div>
-
-            <div>
-              <label for="descricao-certificado" class="block text-sm font-medium text-gray-700 mb-2">Texto do Certificado:</label>
-              <textarea id="descricao-certificado" rows="4" class="w-full px-3 py-2 border border-gray-300 rounded-lg text-sm focus:ring-blue-500 focus:border-blue-500 transition-colors">
+          <!-- Texto do Certificado -->
+          <div>
+            <label for="descricao-certificado" class="block text-sm font-medium text-gray-700 mb-2">Texto do Certificado:</label>
+            <textarea id="descricao-certificado" rows="4" class="w-full px-3 py-2 border border-gray-300 rounded-lg text-sm focus:ring-blue-500 focus:border-blue-500 transition-colors">
 CERTIFICAMOS, por meio deste, que Raphael concluiu con êxito o curso de Odontologia, cumprindo uma carga horária total de 200 horas. De referido curso foi realizado na unidade de Campinas, com a data de conclusão registrada em 20 de julho de 2025. Agradecemos ao corpo docente pela excelência na condução das atividades acadêmicas, cuja dedicação e comprometimento foram fundamentais para a formação do aluno.
-              </textarea>
-              <input type="hidden" name="descricao" id="descricao-certificado-input" value="">
-              
-              <button id="add-descricao" class="w-full mt-3 bg-blue-600 hover:bg-blue-700 text-white font-medium py-2 px-4 rounded-lg transition-colors flex items-center justify-center gap-2">
-                <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6v6m0 0v6m0-6h6m-6 0H6" />
-                </svg>
-                Adicionar/Atualizar Texto
-              </button>
-            </div>
+            </textarea>
+            <input type="hidden" name="descricao" id="descricao-certificado-input" value="">
+            
+            <button id="add-descricao" class="w-full mt-3 bg-blue-600 hover:bg-blue-700 text-white font-medium py-2 px-4 rounded-lg transition-colors flex items-center justify-center gap-2">
+              <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6v6m0 0v6m0-6h6m-6 0H6" />
+              </svg>
+              Adicionar/Atualizar Texto
+            </button>
           </div>
 
           <!-- Preview do certificado -->
           <div class="mt-6">
-<div class="preview-container border border-gray-200 rounded-lg bg-white w-full aspect-[4/3] relative overflow-hidden" id="preview" style="background-size: contain; background-repeat: no-repeat; background-position: center;"></div>          </div>
+            <div class="preview-container border border-gray-200 rounded-lg bg-white w-full aspect-[4/3] relative overflow-hidden" id="preview" style="background-size: contain; background-repeat: no-repeat; background-position: center;"></div>
+          </div>
+        </div>
+      </div>
+
+      <!-- NOVA COLUNA DIREITA (APENAS PROMPT IA) -->
+      <div class="w-64 bg-white p-6 border-l border-gray-200 overflow-y-auto">
+        <h3 class="text-lg font-semibold text-gray-900 mb-4">IA — Geração de Texto</h3>
+        
+        <div class="space-y-4">
+          <div>
+            <label class="block text-sm font-medium text-gray-700 mb-2">Personalizar texto do certificado:</label>
+            <textarea id="prompt" rows="3" class="w-full px-3 py-2 border border-gray-300 rounded-lg text-sm focus:ring-blue-500 focus:border-blue-500 transition-colors" placeholder="Digite aqui como quer que o certificado seja gerado..."></textarea>
+            
+            <div class="prompt-sugestoes flex gap-2 mt-2 flex-wrap">
+              <button onclick="usarSugestao('Deixe o texto mais formal.')" class="text-xs px-3 py-1 bg-gray-100 text-gray-700 rounded-md border border-gray-300 hover:bg-gray-200 transition-colors">
+                + Formal
+              </button>
+              <button onclick="usarSugestao('Adicione agradecimentos ao corpo docente.')" class="text-xs px-3 py-1 bg-gray-100 text-gray-700 rounded-md border border-gray-300 hover:bg-gray-200 transition-colors">
+                + Agradecimento
+              </button>
+              <button onclick="usarSugestao('Resuma o texto em uma linha.')" class="text-xs px-3 py-1 bg-gray-100 text-gray-700 rounded-md border border-gray-300 hover:bg-gray-200 transition-colors">
+                + Resumo
+              </button>
+            </div>
+          </div>
+          
+          <div class="space-y-2">
+            <button onclick="refinarTexto()" class="w-full bg-blue-600 hover:bg-blue-700 text-white font-medium py-2 px-4 rounded-lg transition-colors">
+              Refinar com esse prompt
+            </button>
+            <button onclick="gerarTextoCertificado()" class="w-full bg-blue-600 hover:bg-blue-700 text-white font-medium py-2 px-4 rounded-lg transition-colors">
+              Gerar Texto
+            </button>
+            <button onclick="limparHistorico()" class="w-full bg-gray-100 hover:bg-gray-200 text-gray-700 font-medium py-2 px-4 rounded-lg border border-gray-300 transition-colors">
+              Novo Texto
+            </button>
+          </div>
+          
+          <div id="chat-historico" class="mt-4 border border-gray-200 rounded-lg p-3 bg-gray-50 max-h-48 overflow-y-auto text-sm"></div>
         </div>
       </div>
     </div>
   </div>
+
 
 
   <script>
@@ -574,55 +573,44 @@ document.addEventListener('DOMContentLoaded', function() {
   setupDragAndDrop(); // Adicione esta linha
 });
 
+  // Torna um elemento arrastável
   function makeDraggable(el) {
-  let offsetX, offsetY, isDragging = false;
-  
-  el.addEventListener('mousedown', e => {
-    if (e.button !== 0) return; // Apenas botão esquerdo
+    let offsetX, offsetY, isDragging = false;
     
-    // Seleciona o elemento
-    if (state.selectedElement) state.selectedElement.classList.remove('selected');
-    state.selectedElement = el;
-    el.classList.add('selected');
-    
-    // Prepara para arrastar
-    const rect = el.getBoundingClientRect();
-    const previewRect = preview.getBoundingClientRect();
-    
-    offsetX = e.clientX - rect.left + previewRect.left;
-    offsetY = e.clientY - rect.top + previewRect.top;
-    isDragging = false;
-    
-    function mouseMoveHandler(ev) {
-      isDragging = true;
+    el.addEventListener('mousedown', e => {
+      if (e.button !== 0) return; // Apenas botão esquerdo
       
-      // Calcula a nova posição relativa ao preview
-      let newX = ev.clientX - offsetX;
-      let newY = ev.clientY - offsetY;
+      // Seleciona o elemento
+      if (state.selectedElement) state.selectedElement.classList.remove('selected');
+      state.selectedElement = el;
+      el.classList.add('selected');
       
-      // Limita ao container
-      newX = Math.max(0, Math.min(newX, previewRect.width - rect.width));
-      newY = Math.max(0, Math.min(newY, previewRect.height - rect.height));
+      // Prepara para arrastar
+      offsetX = e.offsetX;
+      offsetY = e.offsetY;
+      isDragging = false;
       
-      el.style.left = `${newX}px`;
-      el.style.top = `${newY}px`;
-      el.style.transform = 'none';
-    }
-    
-    function mouseUpHandler() {
-      document.removeEventListener('mousemove', mouseMoveHandler);
-      document.removeEventListener('mouseup', mouseUpHandler);
-      
-      if (!isDragging) {
-        // Foi apenas um clique, não um arraste
-        updateStyleControls();
+      function mouseMoveHandler(ev) {
+        isDragging = true;
+        el.style.left = `${ev.pageX - preview.getBoundingClientRect().left - offsetX}px`;
+        el.style.top = `${ev.pageY - preview.getBoundingClientRect().top - offsetY}px`;
+        el.style.transform = 'none';
       }
-    }
-    
-    document.addEventListener('mousemove', mouseMoveHandler);
-    document.addEventListener('mouseup', mouseUpHandler);
-  });
-}
+      
+      function mouseUpHandler() {
+        document.removeEventListener('mousemove', mouseMoveHandler);
+        document.removeEventListener('mouseup', mouseUpHandler);
+        
+        if (!isDragging) {
+          // Foi apenas um clique, não um arraste
+          updateStyleControls();
+        }
+      }
+      
+      document.addEventListener('mousemove', mouseMoveHandler);
+      document.addEventListener('mouseup', mouseUpHandler);
+    });
+  }
 
   // Manipulação de cliques no preview
   function handlePreviewClick(e) {
