@@ -41,11 +41,12 @@
       max-width: 80%;
       transition: all 0.2s;
       font-size: 14px;
-      z-index: 10;
+        z-index: 10;
     }
 
     .draggable.selected {
       border: 1px solid #3b82f6;
+      background-color: rgba(239, 246, 255, 0.9);
       box-shadow: 0 1px 3px rgba(59, 130, 246, 0.1);
     }
 
@@ -234,14 +235,15 @@ CERTIFICAMOS, por meio deste, que Raphael concluiu con êxito o curso de Odontol
 
 
 
-  <script>
+ <script>
   // Estado global da aplicação
   const state = {
     mappedFields: {},
     selectedElement: null,
     currentTemplate: null,
     fieldElements: {},
-    excelData: null
+    excelData: null,
+    historico: []
   };
 
   // Elementos DOM
@@ -274,50 +276,43 @@ CERTIFICAMOS, por meio deste, que Raphael concluiu con êxito o curso de Odontol
     atualizarPreview();
     setupDragAndDrop();
     setupTextEditor();
-    renderTemplateThumbnails(); // 🔥 Chama a função que cria as miniaturas
-});
+    renderTemplateThumbnails();
+  });
 
-function renderTemplateThumbnails() {
-  const thumbnailsContainer = document.getElementById('template-thumbnails');
-  const templateSelect = document.getElementById('template'); // Garantir que existe
-  
-  if (!thumbnailsContainer || !templateSelect) {
-    console.error('Elementos não encontrados!');
-    return;
-  }
-
-  thumbnailsContainer.innerHTML = '';
-
-  Array.from(templateSelect.options).forEach(option => {
-    const templatePath = option.value;
-    const thumb = document.createElement('div');
-    thumb.className = 'template-thumb';
-    thumb.style.backgroundImage = `url('${templatePath}')`;
-    thumb.title = option.text;
-
-    // Tratamento de erro
-    thumb.addEventListener('error', () => {
-      thumb.style.backgroundImage = 'none';
-      thumb.innerHTML = `<span>${option.text}</span>`;
-      thumb.style.backgroundColor = '#f0f0f0';
-    });
-
-    if (templateSelect.value === option.value) {
-      thumb.classList.add('selected');
+  function renderTemplateThumbnails() {
+    const thumbnailsContainer = document.getElementById('template-thumbnails');
+    if (!thumbnailsContainer || !templateSelect) {
+      console.error('Elementos não encontrados!');
+      return;
     }
 
-    thumb.addEventListener('click', () => {
-      templateSelect.value = option.value;
-      atualizarPreview();
-      document.querySelectorAll('.template-thumb.selected').forEach(el => el.classList.remove('selected'));
-      thumb.classList.add('selected');
+    thumbnailsContainer.innerHTML = '';
+    Array.from(templateSelect.options).forEach(option => {
+      const templatePath = option.value;
+      const thumb = document.createElement('div');
+      thumb.className = 'template-thumb';
+      thumb.style.backgroundImage = `url('${templatePath}')`;
+      thumb.title = option.text;
+
+      thumb.addEventListener('error', () => {
+        thumb.style.backgroundImage = 'none';
+        thumb.innerHTML = `<span>${option.text}</span>`;
+        thumb.style.backgroundColor = '#f0f0f0';
+      });
+
+      if (templateSelect.value === option.value) thumb.classList.add('selected');
+
+      thumb.addEventListener('click', () => {
+        templateSelect.value = option.value;
+        atualizarPreview();
+        document.querySelectorAll('.template-thumb.selected').forEach(el => el.classList.remove('selected'));
+        thumb.classList.add('selected');
+      });
+
+      thumbnailsContainer.appendChild(thumb);
     });
+  }
 
-    thumbnailsContainer.appendChild(thumb);
-  });
-}
-
-  // Configura todos os event listeners
   function setupEventListeners() {
     templateSelect.addEventListener('change', atualizarPreview);
     fontSelector.addEventListener('change', updateSelectedElementStyle);
@@ -327,32 +322,27 @@ function renderTemplateThumbnails() {
     autoPositionBtn.addEventListener('click', autoPositionFields);
     addDescricaoBtn.addEventListener('click', () => addDescricaoTexto());
 
-    // 🔥 Sincronização entre o range e o input numérico de tamanho da fonte
-  const fontSizeRange = document.getElementById('font-size-range');
-  if (fontSizeRange) {
-    fontSizeRange.addEventListener('input', () => {
-      fontSizeInput.value = fontSizeRange.value;
-      updateSelectedElementStyle(); // atualiza em tempo real
-    });
-    fontSizeInput.addEventListener('input', () => {
-      fontSizeRange.value = fontSizeInput.value;
-      updateSelectedElementStyle();
-    });
-  }
-    
-    // Upload de arquivo
+    const fontSizeRange = document.getElementById('font-size-range');
+    if (fontSizeRange) {
+      fontSizeRange.addEventListener('input', () => {
+        fontSizeInput.value = fontSizeRange.value;
+        updateSelectedElementStyle();
+      });
+      fontSizeInput.addEventListener('input', () => {
+        fontSizeRange.value = fontSizeInput.value;
+        updateSelectedElementStyle();
+      });
+    }
+
     excelUpload.addEventListener('change', handleFileUpload);
-    
-    // Drag and drop para upload
+
     uploadArea.addEventListener('dragover', (e) => {
       e.preventDefault();
       uploadArea.classList.add('active');
     });
-    
-    uploadArea.addEventListener('dragleave', () => {
-      uploadArea.classList.remove('active');
-    });
-    
+
+    uploadArea.addEventListener('dragleave', () => uploadArea.classList.remove('active'));
+
     uploadArea.addEventListener('drop', (e) => {
       e.preventDefault();
       uploadArea.classList.remove('active');
@@ -361,25 +351,19 @@ function renderTemplateThumbnails() {
         handleFileUpload();
       }
     });
-    
-    // Seleção de elementos no preview
-    preview.addEventListener('click', handlePreviewClick);
-    
-    const gerarTextoBtn = document.getElementById('gerar-texto-btn');
-if (gerarTextoBtn) {
-  gerarTextoBtn.addEventListener('click', gerarTextoCertificado);
-}
 
+    preview.addEventListener('click', handlePreviewClick);
+
+    const gerarTextoBtn = document.getElementById('gerar-texto-btn');
+    if (gerarTextoBtn) gerarTextoBtn.addEventListener('click', gerarTextoCertificado);
   }
 
-  // Atualiza o template de fundo
   function atualizarPreview() {
     state.currentTemplate = templateSelect.value;
     preview.style.backgroundImage = `url('${state.currentTemplate}')`;
     showToast('Template atualizado com sucesso');
   }
 
-  // Manipulação do upload do Excel
   async function handleFileUpload() {
     const file = excelUpload.files[0];
     if (!file) return;
@@ -390,18 +374,16 @@ if (gerarTextoBtn) {
     try {
       const formData = new FormData();
       formData.append('file', file);
-      
+
       const response = await fetch('/certificados/ler-colunas', {
         method: 'POST',
         body: formData,
-        headers: {
-          'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').content
-        },
+        headers: { 'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').content },
         credentials: 'same-origin'
       });
 
       const data = await response.json();
-      
+
       if (data.status === 'success' && data.colunas?.length) {
         state.excelData = data;
         state.mappedFields = mapExcelFields(data.colunas);
@@ -409,21 +391,18 @@ if (gerarTextoBtn) {
         placeFieldsOnCertificate(state.mappedFields);
         showToast('Arquivo carregado com sucesso!');
       } else {
-        excelColumns.innerHTML = '<p style="color:#ef4444;font-size:12px;text-align:center;">Nenhuma coluna encontrada no arquivo.</p>';
-        showToast('Nenhuma coluna encontrada no arquivo', 'error');
+        excelColumns.innerHTML = '<p style="color:#ef4444;font-size:12px;text-align:center;">Nenhuma coluna encontrada.</p>';
+        showToast('Nenhuma coluna encontrada', 'error');
       }
     } catch (err) {
       console.error(err);
       excelColumns.innerHTML = '<p style="color:#ef4444;font-size:12px;text-align:center;">Erro ao processar o arquivo.</p>';
-        showToast('Erro ao processar o arquivo', 'error');
+      showToast('Erro ao processar arquivo', 'error');
     } finally {
       hideLoading();
     }
   }
 
-
-
-  // Mapeia automaticamente os campos do Excel
   function mapExcelFields(columns) {
     const mapped = {};
     columns.forEach(col => {
@@ -438,10 +417,8 @@ if (gerarTextoBtn) {
     return mapped;
   }
 
-  // Renderiza as colunas do Excel
   function renderExcelColumns(columns) {
     const fragment = document.createDocumentFragment();
-    
     columns.forEach(col => {
       const div = document.createElement('div');
       div.className = 'column-item';
@@ -449,29 +426,19 @@ if (gerarTextoBtn) {
       div.draggable = true;
       div.dataset.columnName = col;
       div.addEventListener('dragstart', e => {
-        e.dataTransfer.setData('text/plain', col);
-        e.dataTransfer.setData('application/json', JSON.stringify({
-          type: 'excel-field',
-          name: col
-        }));
+        e.dataTransfer.setData('application/json', JSON.stringify({ type: 'excel-field', name: col }));
       });
       fragment.appendChild(div);
     });
-    
     excelColumns.innerHTML = '';
     excelColumns.appendChild(fragment);
   }
 
-  // Posiciona os campos no certificado
   function placeFieldsOnCertificate(mappedFields) {
-    // Remove apenas campos de Excel existentes
     preview.querySelectorAll('.draggable[data-field-type="excel-field"]').forEach(el => el.remove());
-    
-    // Adiciona os novos campos
     Object.keys(mappedFields).forEach(fieldName => {
       const layoutKey = mappedFields[fieldName];
       const position = fieldPositions[layoutKey];
-      
       if (position) {
         const fieldElement = createFieldElement(fieldName, true);
         applyPositionStyles(fieldElement, position);
@@ -481,23 +448,19 @@ if (gerarTextoBtn) {
     });
   }
 
-  // Cria um novo elemento de campo
   function createFieldElement(fieldName, isExcelField = false) {
     const el = document.createElement('div');
     el.className = 'draggable';
     el.textContent = isExcelField ? `*${fieldName}` : fieldName;
     el.dataset.fieldType = isExcelField ? 'excel-field' : 'text-field';
-    
     if (isExcelField) {
       el.dataset.sourceField = fieldName;
       el.dataset.mappedField = state.mappedFields[fieldName];
     }
-    
     makeDraggable(el);
     return el;
   }
 
-  // Aplica estilos de posição
   function applyPositionStyles(element, position) {
     element.style.left = position.x;
     element.style.top = position.y;
@@ -508,111 +471,81 @@ if (gerarTextoBtn) {
     element.style.textAlign = position.align;
   }
 
-  // Adicione esta função modificada (mantendo toda a lógica original)
-function setupDragAndDrop() {
-  const preview = document.getElementById('preview'); // ID original mantido
-  const excelColumns = document.getElementById('excel-columns'); // ID original mantido
-
-  // 1. Configuração dos listeners originais
-  preview.addEventListener('dragover', function(e) {
-    e.preventDefault();
-    preview.classList.add('border-blue-500', 'bg-blue-50'); // Classes do Tailwind
-  });
-
-  preview.addEventListener('dragleave', function() {
-    preview.classList.remove('border-blue-500', 'bg-blue-50');
-  });
-
-  preview.addEventListener('drop', function(e) {
-    e.preventDefault();
-    preview.classList.remove('border-blue-500', 'bg-blue-50');
-    
-    // Lógica original de tratamento do drop
-    try {
-      const data = JSON.parse(e.dataTransfer.getData('application/json'));
-      if (data.type === 'excel-field') {
-        const fieldName = data.name;
-        const div = createFieldElement(fieldName, true);
-        div.style.top = `${e.offsetY}px`;
-        div.style.left = `${e.offsetX}px`;
-        preview.appendChild(div);
-        makeDraggable(div); // Chama a função original
-      }
-    } catch {
-      const text = e.dataTransfer.getData('text/plain');
-      if (text) {
-        const div = createFieldElement(text);
-        div.style.top = `${e.offsetY}px`;
-        div.style.left = `${e.offsetX}px`;
-        preview.appendChild(div);
-        makeDraggable(div); // Chama a função original
-      }
-    }
-  });
-
-  // 2. Atualização dos itens arrastáveis
-  if (excelColumns) {
-    new MutationObserver(function() {
-      document.querySelectorAll('.column-item').forEach(function(item) {
-        item.draggable = true;
-        item.addEventListener('dragstart', function(e) {
-          e.dataTransfer.setData('text/plain', e.target.textContent);
-          e.dataTransfer.setData('application/json', JSON.stringify({
-            type: 'excel-field',
-            name: e.target.textContent
-          }));
-        });
-      });
-    }).observe(excelColumns, { childList: true });
-  }
-}
-
-// Atualize a inicialização para garantir que seja chamada
-document.addEventListener('DOMContentLoaded', function() {
-  // ... seu código existente ...
-  setupDragAndDrop(); // Adicione esta linha
-});
-
-  // Torna um elemento arrastável
-  function makeDraggable(el) {
-    let offsetX, offsetY, isDragging = false;
-    
-    el.addEventListener('mousedown', e => {
-      if (e.button !== 0) return; // Apenas botão esquerdo
-      
-      // Seleciona o elemento
-      if (state.selectedElement) state.selectedElement.classList.remove('selected');
-      state.selectedElement = el;
-      el.classList.add('selected');
-      
-      // Prepara para arrastar
-      offsetX = e.offsetX;
-      offsetY = e.offsetY;
-      isDragging = false;
-      
-      function mouseMoveHandler(ev) {
-        isDragging = true;
-        el.style.left = `${ev.pageX - preview.getBoundingClientRect().left - offsetX}px`;
-        el.style.top = `${ev.pageY - preview.getBoundingClientRect().top - offsetY}px`;
-        el.style.transform = 'none';
-      }
-      
-      function mouseUpHandler() {
-        document.removeEventListener('mousemove', mouseMoveHandler);
-        document.removeEventListener('mouseup', mouseUpHandler);
-        
-        if (!isDragging) {
-          // Foi apenas um clique, não um arraste
-          updateStyleControls();
+  function setupDragAndDrop() {
+    preview.addEventListener('dragover', (e) => {
+      e.preventDefault();
+      preview.classList.add('drop-active');
+    });
+    preview.addEventListener('dragleave', () => preview.classList.remove('drop-active'));
+    preview.addEventListener('drop', (e) => {
+      e.preventDefault();
+      preview.classList.remove('drop-active');
+      if (state.draggingElement) return;
+      const data = e.dataTransfer.getData('application/json');
+      if (data) {
+        try {
+          const fieldData = JSON.parse(data);
+          if (fieldData.type === 'excel-field') {
+            const fieldElement = createFieldElement(fieldData.name, true);
+            positionElementAt(fieldElement, e.clientX, e.clientY);
+            preview.appendChild(fieldElement);
+          }
+        } catch (err) {
+          console.error('Error parsing drop data:', err);
         }
       }
-      
-      document.addEventListener('mousemove', mouseMoveHandler);
-      document.addEventListener('mouseup', mouseUpHandler);
     });
   }
 
-  // Manipulação de cliques no preview
+  function positionElementAt(element, clientX, clientY) {
+    const previewRect = preview.getBoundingClientRect();
+    element.style.left = `${clientX - previewRect.left}px`;
+    element.style.top = `${clientY - previewRect.top}px`;
+  }
+
+  function makeDraggable(el) {
+    let isDragging = false;
+    let startX, startY, offsetX, offsetY;
+
+    el.addEventListener('mousedown', (e) => {
+      if (e.button !== 0) return;
+      if (state.selectedElement) state.selectedElement.classList.remove('selected');
+      state.selectedElement = el;
+      el.classList.add('selected');
+      isDragging = false;
+      startX = e.clientX;
+      startY = e.clientY;
+      offsetX = e.offsetX;
+      offsetY = e.offsetY;
+      state.draggingElement = true;
+
+      function moveHandler(e) {
+        if (!isDragging && (Math.abs(e.clientX - startX) > 5 || Math.abs(e.clientY - startY) > 5)) {
+          isDragging = true;
+        }
+        if (isDragging) {
+          const previewRect = preview.getBoundingClientRect();
+          el.style.left = `${e.clientX - previewRect.left - offsetX}px`;
+          el.style.top = `${e.clientY - previewRect.top - offsetY}px`;
+          el.style.transform = 'none';
+        }
+      }
+
+      function upHandler() {
+        document.removeEventListener('mousemove', moveHandler);
+        document.removeEventListener('mouseup', upHandler);
+        state.draggingElement = false;
+        if (!isDragging) updateStyleControls();
+      }
+
+      document.addEventListener('mousemove', moveHandler);
+      document.addEventListener('mouseup', upHandler, { once: true });
+    });
+
+    el.setAttribute('draggable', 'false');
+    el.addEventListener('dragstart', (e) => e.preventDefault());
+  }
+
   function handlePreviewClick(e) {
     if (e.target.classList.contains('draggable')) {
       if (state.selectedElement) state.selectedElement.classList.remove('selected');
@@ -625,23 +558,14 @@ document.addEventListener('DOMContentLoaded', function() {
     }
   }
 
-  // Atualiza os controles de estilo com base no elemento selecionado
   function updateStyleControls() {
     if (!state.selectedElement) return;
-    
     const style = state.selectedElement.style;
     fontSelector.value = style.fontFamily || 'Arial';
     fontSizeInput.value = parseInt(style.fontSize) || 24;
-    
-    // Converte cor RGB para HEX se necessário
-    if (style.color && style.color.startsWith('rgb')) {
-      fontColorInput.value = rgbToHex(style.color);
-    } else {
-      fontColorInput.value = style.color || '#000000';
-    }
+    fontColorInput.value = style.color.startsWith('rgb') ? rgbToHex(style.color) : style.color || '#000000';
   }
 
-  // Atualiza o estilo do elemento selecionado
   function updateSelectedElementStyle() {
     if (state.selectedElement) {
       state.selectedElement.style.fontFamily = fontSelector.value;
@@ -650,7 +574,6 @@ document.addEventListener('DOMContentLoaded', function() {
     }
   }
 
-  // Remove o elemento selecionado
   function deleteSelectedElement() {
     if (state.selectedElement) {
       state.selectedElement.remove();
@@ -659,30 +582,28 @@ document.addEventListener('DOMContentLoaded', function() {
     }
   }
 
-  // Reposiciona os campos automaticamente
   function autoPositionFields() {
     if (!state.excelData) {
       showToast('Faça o upload do Excel primeiro!', 'warning');
       return;
     }
-    
     placeFieldsOnCertificate(state.mappedFields);
     addDescricaoTexto(true);
     showToast('Campos reposicionados automaticamente');
   }
 
-  // Adiciona/atualiza o texto descritivo
   function addDescricaoTexto(reposicionar = false) {
     const textValue = descricaoTextarea.value;
+    if (!textValue.trim()) {
+      showToast("Digite um texto antes de adicionar!", "warning");
+      return;
+    }
     let desc = preview.querySelector('#descricao-cert');
-    
     if (!desc) {
       desc = createFieldElement('', false);
       desc.id = 'descricao-cert';
       preview.appendChild(desc);
     }
-    
-    // Atualiza conteúdo e estilo
     desc.innerHTML = textValue.replace(/\n/g, '<br>');
     desc.style.position = 'absolute';
     desc.style.left = reposicionar ? '50%' : (desc.style.left || '50%');
@@ -694,50 +615,30 @@ document.addEventListener('DOMContentLoaded', function() {
     desc.style.textAlign = 'center';
     desc.style.width = '80%';
     desc.style.whiteSpace = 'pre-wrap';
-    
-    if (!reposicionar) {
-      showToast('Texto do certificado atualizado');
-    }
+    if (!reposicionar) showToast('Texto do certificado atualizado');
   }
 
-  // Configura o editor de texto
   function setupTextEditor() {
-
-// Agora estilizar cada botão individualmente:
-const buttons = toolbar.querySelectorAll('button');
-buttons.forEach(button => {
-  button.style.all = 'unset'; // reseta estilos padrões do botão
-  button.style.cursor = 'pointer';
-  button.style.padding = '4px 7px';
-  button.style.fontWeight = 'bold';
-  button.style.fontSize = '14px';
-  button.style.textAlign = 'center';
-  button.style.borderRadius = '2px';
-  button.style.userSelect = 'none';
-  button.style.border = '1px solid transparent';
-  button.style.transition = 'background-color 0.2s, border-color 0.2s';
-
-  // Adicionar efeito hover e active usando eventos JS (porque :hover CSS não funciona aqui)
-  button.addEventListener('mouseenter', () => {
-    button.style.backgroundColor = '#ddd';
-    button.style.borderColor = '#999';
-  });
-  button.addEventListener('mouseleave', () => {
-    button.style.backgroundColor = 'transparent';
-    button.style.borderColor = 'transparent';
-  });
-  button.addEventListener('mousedown', () => {
-    button.style.backgroundColor = '#bbb';
-    button.style.borderColor = '#666';
-  });
-  button.addEventListener('mouseup', () => {
-    button.style.backgroundColor = '#ddd';
-    button.style.borderColor = '#999';
-  });
-});
-
+    const toolbar = document.createElement("div");
+    toolbar.className = "flex gap-2 mb-2";
+    toolbar.innerHTML = `
+      <button data-command="bold">B</button>
+      <button data-command="italic">I</button>
+      <button data-command="underline">S</button>
+    `;
+    const buttons = toolbar.querySelectorAll('button');
+    buttons.forEach(button => {
+      button.style.all = 'unset';
+      button.style.cursor = 'pointer';
+      button.style.padding = '4px 7px';
+      button.style.fontWeight = 'bold';
+      button.style.fontSize = '14px';
+      button.style.border = '1px solid transparent';
+      button.style.borderRadius = '3px';
+      button.addEventListener('mouseenter', () => button.style.backgroundColor = '#ddd');
+      button.addEventListener('mouseleave', () => button.style.backgroundColor = 'transparent');
+    });
     descricaoTextarea.parentNode.insertBefore(toolbar, descricaoTextarea);
-    
     toolbar.addEventListener('click', e => {
       const command = e.target.closest('button')?.dataset.command;
       if (command) {
@@ -747,51 +648,44 @@ buttons.forEach(button => {
     });
   }
 
-  // Converte RGB para HEX
   function rgbToHex(rgb) {
     if (!rgb) return '#000000';
-    
-    // Extrai os valores RGB
     const result = /^rgba?\((\d+),\s*(\d+),\s*(\d+)(?:,\s*\d+\.*\d*)?\)$/.exec(rgb);
     if (!result) return '#000000';
-    
-    const r = parseInt(result[1]);
-    const g = parseInt(result[2]);
-    const b = parseInt(result[3]);
-    
-    return "#" + [r, g, b].map(x => {
-      const hex = x.toString(16);
+    return "#" + [result[1], result[2], result[3]].map(x => {
+      const hex = parseInt(x).toString(16);
       return hex.length === 1 ? '0' + hex : hex;
     }).join('');
   }
 
-  // Mostra notificação
   function showToast(message, type = 'success') {
     const toast = document.createElement('div');
     toast.className = `toast ${type}`;
     toast.textContent = message;
     document.body.appendChild(toast);
-    
     setTimeout(() => {
       toast.style.opacity = '0';
       setTimeout(() => toast.remove(), 300);
     }, 3000);
   }
 
-  // Mostra indicador de carregamento
   function showLoading() {
     uploadArea.innerHTML = '<p style="color:#2563eb;">Processando arquivo...</p>';
   }
 
-  // Esconde indicador de carregamento
-  function hideLoading() {
-    uploadArea.innerHTML = `
-      <p>Arquivo carregado: ${excelUpload.files[0].name}</p>
-      <button class="secondary" onclick="document.getElementById('excel-upload').click()">Trocar Arquivo</button>
-    `;
-  }
+function hideLoading() {
+  uploadArea.innerHTML = `
+    <p>Arquivo carregado: ${excelUpload.files[0].name}</p>
+    <button id="btn-trocar-arquivo" class="secondary">Trocar Arquivo</button>
+  `;
 
-  // Debounce para otimizar eventos
+  // 🔥 Agora adiciona o evento ao botão criado dinamicamente
+  document.getElementById('btn-trocar-arquivo').addEventListener('click', () => {
+    excelUpload.value = ''; // Limpa o input file
+    excelUpload.click();    // Abre novamente o seletor de arquivos
+  });
+}
+
   function debounce(func, timeout = 100) {
     let timer;
     return (...args) => {
@@ -800,118 +694,79 @@ buttons.forEach(button => {
     };
   }
 
-  // Alterna a barra lateral
   function toggleSidebar() {
     document.getElementById('form-column').classList.toggle('collapsed');
   }
 
   function excelSerialToDate(serial) {
-  const excelEpoch = new Date(1899, 11, 30);
-  const date = new Date(excelEpoch.getTime() + serial * 86400000);
-  return date.toISOString().split('T')[0]; // Exemplo: 2025-08-01
-}
-
- async function gerarTextoCertificado() {
-  if (!state.excelData || !state.excelData.dados || !state.excelData.dados.length) {
-    console.error('Excel está vazio ou mal formatado');
-    showToast("Nenhum dado de Excel encontrado!", "error");
-    return;
+    const excelEpoch = new Date(1899, 11, 30);
+    const date = new Date(excelEpoch.getTime() + serial * 86400000);
+    return date.toISOString().split('T')[0];
   }
 
-  const aluno = state.excelData.dados[0];
-  console.log("aluno:", aluno);
+  async function gerarTextoCertificado() {
+    if (!state.excelData || !state.excelData.dados || !state.excelData.dados.length) {
+      console.error('Excel está vazio ou mal formatado');
+      showToast("Nenhum dado de Excel encontrado!", "error");
+      return;
+    }
+    const aluno = state.excelData.dados[0];
+    const promptExtra = document.querySelector("#prompt")?.value?.trim() || "";
+    const payload = {
+      nome: aluno['nome']?.trim() || aluno['nome ']?.trim(),
+      curso: aluno['curso']?.trim(),
+      carga_horaria: aluno['carga horaria']?.toString(),
+      data_conclusao: excelSerialToDate(aluno['data conclusão'] || aluno['data conclusao']),
+      unidade: aluno['unidade']?.trim() || aluno['unidade ']?.trim(),
+      historico: state.historico || [],
+      prompt_extra: promptExtra
+    };
 
-  const promptExtra = document.querySelector("#prompt")?.value?.trim() || "";
+    console.log("📤 Enviando payload:", payload);
 
-  const payload = {
-    nome: aluno['nome ']?.trim(),
-    curso: aluno['curso']?.trim(),
-    carga_horaria: aluno['carga horaria']?.toString(),
-    data_conclusao: excelSerialToDate(aluno['data conclusão']),
-    unidade: aluno['unidade ']?.trim(),
-    historico: state.historico || [],
-    prompt_extra: promptExtra
-  };
-
-  console.log("📤 Enviando payload:", payload);
-
-  try {
-    const response = await fetch("/certificados/gerar-texto", {
-      method: "POST",
-      headers: {
-        "Accept": "application/json",
-        "Content-Type": "application/json",
-        "X-CSRF-TOKEN": document.querySelector('meta[name="csrf-token"]').content,
-      },
-      body: JSON.stringify(payload),
-    });
-
-    console.log("Status da resposta:", response.status);
-
-    const textResponse = await response.text();
-    console.log("Resposta bruta do servidor:", textResponse);
-
-    let data;
     try {
-      data = JSON.parse(textResponse);
-    } catch {
-      throw new Error("Resposta não é JSON válido");
-    }
+      const resp = await fetch('/certificados/gerar-texto', {
+        method: "POST",
+        headers: { "Content-Type": "application/json", "X-CSRF-TOKEN": document.querySelector("meta[name='csrf-token']").content },
+        body: JSON.stringify(payload),
+      });
+      console.log("📡 Status da resposta:", resp.status);
+      const data = await resp.json();
+      console.log("📥 Resposta bruta do servidor:", data);
 
-    console.log("📥 Resposta JSON:", data);
-
-    if (data.status === "success") {
-      document.querySelector("#descricao-certificado").value = data.texto;
-      addDescricaoTexto();
-      showToast("Texto do certificado gerado com sucesso!");
-      document.querySelector("#prompt").value = "";
-
-      // 🔁 Atualiza o histórico para continuar a conversa
+      if (!resp.ok || !data?.status || data.status !== "success") throw new Error(data.message || "Falha ao gerar texto");
+      if (data.texto) descricaoTextarea.value = data.texto;
       if (data.historico) {
-      state.historico = data.historico;
-      atualizarHistoricoUI(state.historico);
+        state.historico = data.historico;
+        atualizarHistoricoUI(data.historico);
+      }
+      addDescricaoTexto(false);
+      showToast("Texto gerado com sucesso!", "success");
+    } catch (err) {
+      console.error("❌ Erro ao gerar texto:", err);
+      showToast("Erro ao gerar texto: " + err.message, "error");
     }
-    } else {
-      showToast("Erro: " + data.mensagem, "error");
-    }
-  } catch (err) {
-    console.error("❌ Erro na requisição:", err);
-    showToast("Falha na comunicação com o servidor", "error");
-  }
-}
-
-function refinarTexto() {
-  gerarTextoCertificado(); // mesma função, ela já usa o histórico
-}
-
-function limparHistorico() {
-  state.historico = [];
-  document.querySelector("#prompt").value = "";
-  document.querySelector("#descricao-certificado").value = "";
-}
-
-function usarSugestao(sugestao) {
-  document.querySelector("#prompt").value = sugestao;
-}
-
-function atualizarHistoricoUI(historico) {
-  if (!historico || !Array.isArray(historico)) {
-    console.warn("Histórico ausente ou inválido:", historico);
-    return;
   }
 
-  const div = document.querySelector("#chat-historico");
-  if (!div) return;
+  function atualizarHistoricoUI(historico) {
+    if (!historico || !Array.isArray(historico)) {
+      console.warn("Histórico ausente ou inválido:", historico);
+      return;
+    }
+    const div = document.querySelector("#chat-historico");
+    if (!div) return;
 
-  div.innerHTML = historico
-    .filter(msg => msg.role !== "system")
-    .map(msg => {
-      const classe = msg.role === "user" ? "mensagem-usuario" : "mensagem-ia";
-      ;
-    })
-    .join("");
-}
+    div.innerHTML = historico
+      .filter(msg => msg.role !== "system")
+      .map(msg => {
+        const classe = msg.role === "user" ? "mensagem-usuario" : "mensagem-ia";
+        return `<div class="${classe} p-2 my-1 rounded text-sm ${
+          msg.role === "user" ? "bg-blue-100 text-blue-800" : "bg-gray-100 text-gray-800"
+        }">${msg.content}</div>`;
+      })
+      .join("");
+  }
+</script>
 
-  </script>
 </body>
 </html>
