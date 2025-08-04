@@ -54,6 +54,8 @@
       border: 2px dashed #3b82f6;
       background-color: rgba(239, 246, 255, 0.5);
     }
+
+
   </style>
 </head>
 <body class="font-sans text-gray-900 bg-gray-50 flex h-screen overflow-hidden">
@@ -112,7 +114,7 @@
               <option value="/storage/templates/template_certificado_2.jpg">Pós-Odontologia</option>
               <option value="/storage/templates/template_certificado_3.jpg">SLMandic</option>
             </select>
-            <div id="template-thumbnails" class="template-thumbnails mt-3 space-y-2"></div>
+            <div id="template-thumbnails" class="mt-2 flex flex-col gap-2"></div>
           </div>
         </div>
       </div>
@@ -173,9 +175,9 @@
           <!-- Texto do Certificado -->
           <div>
             <label for="descricao-certificado" class="block text-sm font-medium text-gray-700 mb-2">Texto do Certificado:</label>
-            <textarea id="descricao-certificado" rows="4" class="w-full px-3 py-2 border border-gray-300 rounded-lg text-sm focus:ring-blue-500 focus:border-blue-500 transition-colors">
+            <div id="descricao-certificado" rows="4" class="w-full px-3 py-2 border border-gray-300 rounded-lg text-sm focus:ring-blue-500 focus:border-blue-500 transition-colors">
 CERTIFICAMOS, por meio deste, que Raphael concluiu con êxito o curso de Odontologia, cumprindo uma carga horária total de 200 horas. De referido curso foi realizado na unidade de Campinas, com a data de conclusão registrada em 20 de julho de 2025. Agradecemos ao corpo docente pela excelência na condução das atividades acadêmicas, cuja dedicação e comprometimento foram fundamentais para a formação do aluno.
-            </textarea>
+  </div>
             <input type="hidden" name="descricao" id="descricao-certificado-input" value="">
             
             <button id="add-descricao" class="w-full mt-3 bg-blue-600 hover:bg-blue-700 text-white font-medium py-2 px-4 rounded-lg transition-colors flex items-center justify-center gap-2">
@@ -233,9 +235,7 @@ CERTIFICAMOS, por meio deste, que Raphael concluiu con êxito o curso de Odontol
     </div>
   </div>
 
-
-
- <script>
+  <script>
   // Estado global da aplicação
   const state = {
     mappedFields: {},
@@ -260,6 +260,9 @@ CERTIFICAMOS, por meio deste, que Raphael concluiu con êxito o curso de Odontol
   const addDescricaoBtn = document.getElementById('add-descricao');
   const descricaoTextarea = document.getElementById('descricao-certificado');
 
+  // Ativar edição no campo de descrição
+  descricaoTextarea.setAttribute("contenteditable", "true");
+
   // Posições pré-definidas para os campos
   const fieldPositions = {
     nome: { x: '50%', y: '40%', align: 'center', fontSize: 36 },
@@ -279,39 +282,45 @@ CERTIFICAMOS, por meio deste, que Raphael concluiu con êxito o curso de Odontol
     renderTemplateThumbnails();
   });
 
-  function renderTemplateThumbnails() {
-    const thumbnailsContainer = document.getElementById('template-thumbnails');
-    if (!thumbnailsContainer || !templateSelect) {
-      console.error('Elementos não encontrados!');
-      return;
+function renderTemplateThumbnails() {
+  const thumbnailsContainer = document.getElementById('template-thumbnails');
+  if (!thumbnailsContainer || !templateSelect) return;
+
+  thumbnailsContainer.innerHTML = ''; // Limpa antes de recriar
+
+  Array.from(templateSelect.options).forEach(option => {
+    const templatePath = option.value;
+
+   const thumb = document.createElement('div');
+thumb.className = `
+  w-full 
+  aspect-[16/6] 
+  bg-contain bg-no-repeat bg-center 
+  border-2 border-transparent rounded-md 
+  cursor-pointer transition-transform duration-200 
+  hover:scale-[1.02]
+`;
+thumb.style.backgroundImage = `url('${templatePath}')`;
+
+    // Clique seleciona template e atualiza preview
+    thumb.addEventListener('click', () => {
+      templateSelect.value = option.value;
+      atualizarPreview();
+
+      // Remove seleção anterior
+      document.querySelectorAll('.template-thumb.selected').forEach(el => el.classList.remove('selected'));
+thumb.classList.add('border-blue-600');
+    });
+
+    // Se for o selecionado atual, marca como ativo
+    if (templateSelect.value === option.value) {
+      thumb.classList.add('selected');
     }
 
-    thumbnailsContainer.innerHTML = '';
-    Array.from(templateSelect.options).forEach(option => {
-      const templatePath = option.value;
-      const thumb = document.createElement('div');
-      thumb.className = 'template-thumb';
-      thumb.style.backgroundImage = `url('${templatePath}')`;
-      thumb.title = option.text;
+    thumbnailsContainer.appendChild(thumb);
+  });
+}
 
-      thumb.addEventListener('error', () => {
-        thumb.style.backgroundImage = 'none';
-        thumb.innerHTML = `<span>${option.text}</span>`;
-        thumb.style.backgroundColor = '#f0f0f0';
-      });
-
-      if (templateSelect.value === option.value) thumb.classList.add('selected');
-
-      thumb.addEventListener('click', () => {
-        templateSelect.value = option.value;
-        atualizarPreview();
-        document.querySelectorAll('.template-thumb.selected').forEach(el => el.classList.remove('selected'));
-        thumb.classList.add('selected');
-      });
-
-      thumbnailsContainer.appendChild(thumb);
-    });
-  }
 
   function setupEventListeners() {
     templateSelect.addEventListener('change', atualizarPreview);
@@ -361,29 +370,27 @@ CERTIFICAMOS, por meio deste, que Raphael concluiu con êxito o curso de Odontol
   function atualizarPreview() {
     state.currentTemplate = templateSelect.value;
     preview.style.backgroundImage = `url('${state.currentTemplate}')`;
+    preview.style.backgroundSize = "contain";
+    preview.style.backgroundRepeat = "no-repeat";
+    preview.style.backgroundPosition = "center";
     showToast('Template atualizado com sucesso');
   }
 
   async function handleFileUpload() {
     const file = excelUpload.files[0];
     if (!file) return;
-
     showLoading();
     excelColumns.innerHTML = '<p style="color:#6b7280;font-size:12px;text-align:center;">Carregando colunas...</p>';
-
     try {
       const formData = new FormData();
       formData.append('file', file);
-
       const response = await fetch('/certificados/ler-colunas', {
         method: 'POST',
         body: formData,
         headers: { 'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').content },
         credentials: 'same-origin'
       });
-
       const data = await response.json();
-
       if (data.status === 'success' && data.colunas?.length) {
         state.excelData = data;
         state.mappedFields = mapExcelFields(data.colunas);
@@ -593,8 +600,8 @@ CERTIFICAMOS, por meio deste, que Raphael concluiu con êxito o curso de Odontol
   }
 
   function addDescricaoTexto(reposicionar = false) {
-    const textValue = descricaoTextarea.value;
-    if (!textValue.trim()) {
+    const textValue = descricaoTextarea.innerHTML.trim();
+    if (!textValue) {
       showToast("Digite um texto antes de adicionar!", "warning");
       return;
     }
@@ -604,7 +611,7 @@ CERTIFICAMOS, por meio deste, que Raphael concluiu con êxito o curso de Odontol
       desc.id = 'descricao-cert';
       preview.appendChild(desc);
     }
-    desc.innerHTML = textValue.replace(/\n/g, '<br>');
+    desc.innerHTML = textValue; // Mantém formatação
     desc.style.position = 'absolute';
     desc.style.left = reposicionar ? '50%' : (desc.style.left || '50%');
     desc.style.top = reposicionar ? '60%' : (desc.style.top || '60%');
@@ -618,33 +625,21 @@ CERTIFICAMOS, por meio deste, que Raphael concluiu con êxito o curso de Odontol
     if (!reposicionar) showToast('Texto do certificado atualizado');
   }
 
+  // ✅ Toolbar de texto corrigida
   function setupTextEditor() {
     const toolbar = document.createElement("div");
     toolbar.className = "flex gap-2 mb-2";
     toolbar.innerHTML = `
-      <button data-command="bold">B</button>
-      <button data-command="italic">I</button>
-      <button data-command="underline">S</button>
+      <button data-command="bold"><b>B</b></button>
+      <button data-command="italic"><i>I</i></button>
+      <button data-command="underline"><u>S</u></button>
     `;
-    const buttons = toolbar.querySelectorAll('button');
-    buttons.forEach(button => {
-      button.style.all = 'unset';
-      button.style.cursor = 'pointer';
-      button.style.padding = '4px 7px';
-      button.style.fontWeight = 'bold';
-      button.style.fontSize = '14px';
-      button.style.border = '1px solid transparent';
-      button.style.borderRadius = '3px';
-      button.addEventListener('mouseenter', () => button.style.backgroundColor = '#ddd');
-      button.addEventListener('mouseleave', () => button.style.backgroundColor = 'transparent');
-    });
     descricaoTextarea.parentNode.insertBefore(toolbar, descricaoTextarea);
-    toolbar.addEventListener('click', e => {
-      const command = e.target.closest('button')?.dataset.command;
-      if (command) {
-        document.execCommand(command, false, null);
+    document.querySelectorAll('[data-command]').forEach(btn => {
+      btn.addEventListener('click', () => {
         descricaoTextarea.focus();
-      }
+        document.execCommand(btn.dataset.command, false, null);
+      });
     });
   }
 
@@ -673,18 +668,15 @@ CERTIFICAMOS, por meio deste, que Raphael concluiu con êxito o curso de Odontol
     uploadArea.innerHTML = '<p style="color:#2563eb;">Processando arquivo...</p>';
   }
 
-function hideLoading() {
-  uploadArea.innerHTML = `
-    <p>Arquivo carregado: ${excelUpload.files[0].name}</p>
-    <button id="btn-trocar-arquivo" class="secondary">Trocar Arquivo</button>
-  `;
-
-  // 🔥 Agora adiciona o evento ao botão criado dinamicamente
-  document.getElementById('btn-trocar-arquivo').addEventListener('click', () => {
-    excelUpload.value = ''; // Limpa o input file
-    excelUpload.click();    // Abre novamente o seletor de arquivos
-  });
-}
+  function hideLoading() {
+    uploadArea.innerHTML = `
+      <p>Arquivo carregado: ${excelUpload.files[0].name}</p>
+      <button id="btn-trocar-arquivo" class="secondary">Trocar Arquivo</button>
+    `;
+    uploadArea.addEventListener('click', () => {
+      excelUpload.click();
+    });
+  }
 
   function debounce(func, timeout = 100) {
     let timer;
@@ -715,58 +707,37 @@ function hideLoading() {
     const payload = {
       nome: aluno['nome']?.trim() || aluno['nome ']?.trim(),
       curso: aluno['curso']?.trim(),
-      carga_horaria: aluno['carga horaria']?.toString(),
-      data_conclusao: excelSerialToDate(aluno['data conclusão'] || aluno['data conclusao']),
-      unidade: aluno['unidade']?.trim() || aluno['unidade ']?.trim(),
-      historico: state.historico || [],
-      prompt_extra: promptExtra
+      carga_horaria: aluno['carga horaria'],
+      data_conclusao: aluno['data conclusao'] ? excelSerialToDate(aluno['data conclusao']) : null,
+      unidade: aluno['unidade'],
+      cpf: aluno['cpf'],
+      prompt: promptExtra
     };
-
     console.log("📤 Enviando payload:", payload);
-
     try {
-      const resp = await fetch('/certificados/gerar-texto', {
-        method: "POST",
-        headers: { "Content-Type": "application/json", "X-CSRF-TOKEN": document.querySelector("meta[name='csrf-token']").content },
+      const response = await fetch('/certificados/gerar-texto', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json', 'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').content },
         body: JSON.stringify(payload),
       });
-      console.log("📡 Status da resposta:", resp.status);
-      const data = await resp.json();
-      console.log("📥 Resposta bruta do servidor:", data);
-
-      if (!resp.ok || !data?.status || data.status !== "success") throw new Error(data.message || "Falha ao gerar texto");
-      if (data.texto) descricaoTextarea.value = data.texto;
-      if (data.historico) {
-        state.historico = data.historico;
-        atualizarHistoricoUI(data.historico);
+      console.log("Status da resposta:", response.status);
+      const data = await response.json();
+      console.log("Resposta bruta do servidor:", data);
+      if (data.status === "success" && data.texto) {
+        descricaoTextarea.innerHTML = data.texto;
+        addDescricaoTexto();
+        showToast("Texto gerado com sucesso!");
+      } else {
+        console.error("Erro ao gerar texto:", data);
+        showToast("Erro ao gerar texto", "error");
       }
-      addDescricaoTexto(false);
-      showToast("Texto gerado com sucesso!", "success");
     } catch (err) {
-      console.error("❌ Erro ao gerar texto:", err);
-      showToast("Erro ao gerar texto: " + err.message, "error");
+      console.error("Erro na requisição:", err);
+      showToast("Erro na requisição de texto", "error");
     }
-  }
-
-  function atualizarHistoricoUI(historico) {
-    if (!historico || !Array.isArray(historico)) {
-      console.warn("Histórico ausente ou inválido:", historico);
-      return;
-    }
-    const div = document.querySelector("#chat-historico");
-    if (!div) return;
-
-    div.innerHTML = historico
-      .filter(msg => msg.role !== "system")
-      .map(msg => {
-        const classe = msg.role === "user" ? "mensagem-usuario" : "mensagem-ia";
-        return `<div class="${classe} p-2 my-1 rounded text-sm ${
-          msg.role === "user" ? "bg-blue-100 text-blue-800" : "bg-gray-100 text-gray-800"
-        }">${msg.content}</div>`;
-      })
-      .join("");
   }
 </script>
+
 
 </body>
 </html>
