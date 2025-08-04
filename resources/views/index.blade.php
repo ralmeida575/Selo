@@ -141,8 +141,8 @@
 
             <div class="flex items-center gap-2 flex-1 min-w-[150px]">
               <label class="text-xs font-medium text-gray-600 whitespace-nowrap">Tamanho</label>
-              <input type="range" id="font-size-range" min="8" max="52" value="24" class="flex-1 h-1 bg-gray-300 rounded-lg appearance-none cursor-pointer">
-              <input type="number" id="font-size" min="8" max="52" value="24" class="w-12 text-xs border border-gray-300 rounded px-2 py-1 text-center">
+              <input type="range" id="font-size-range" min="8" max="32" value="16" class="flex-1 h-1 bg-gray-300 rounded-lg appearance-none cursor-pointer">
+              <input type="number" id="font-size" min="8" max="52" value="16" class="w-12 text-xs border border-gray-300 rounded px-2 py-1 text-center">
             </div>
 
             <!-- Botões de formatação -->
@@ -415,11 +415,6 @@ thumb.classList.add('border-blue-600');
     columns.forEach(col => {
       const key = col.toLowerCase().trim();
       if (key.includes('nome')) mapped[col] = 'nome';
-      else if (key.includes('curso')) mapped[col] = 'curso';
-      else if (key.includes('carga')) mapped[col] = 'carga horaria';
-      else if (key.includes('data')) mapped[col] = 'data conclusao';
-      else if (key.includes('unidade')) mapped[col] = 'unidade';
-      else if (key.includes('cpf')) mapped[col] = 'cpf';
     });
     return mapped;
   }
@@ -653,16 +648,47 @@ thumb.classList.add('border-blue-600');
     }).join('');
   }
 
-  function showToast(message, type = 'success') {
-    const toast = document.createElement('div');
-    toast.className = `toast ${type}`;
-    toast.textContent = message;
-    document.body.appendChild(toast);
-    setTimeout(() => {
-      toast.style.opacity = '0';
-      setTimeout(() => toast.remove(), 300);
-    }, 3000);
+function showToast(message, type = 'success') {
+  const toast = document.createElement('div');
+
+  // Classes comuns
+  toast.className = `
+    fixed top-4 right-4
+    min-w-[220px] px-5 py-3
+    text-white font-semibold rounded-lg shadow-lg
+    cursor-default select-none
+    transform translate-x-24 opacity-0
+    transition-all duration-300 ease-out
+    pointer-events-auto
+    z-50
+    `;
+
+  // Classes por tipo
+  if (type === 'success') {
+    toast.classList.add('bg-green-500');
+  } else if (type === 'error') {
+    toast.classList.add('bg-red-400');
+  } else if (type === 'warning') {
+    toast.classList.add('bg-yellow-400', 'text-black');
+  } else {
+    toast.classList.add('bg-gray-700');
   }
+
+  toast.textContent = message;
+  document.body.appendChild(toast);
+
+  // Força reflow para animar (remover translate-x e opacity)
+  requestAnimationFrame(() => {
+    toast.classList.remove('translate-x-24', 'opacity-0');
+  });
+
+  // Após 3 segundos começa a sumir
+  setTimeout(() => {
+    toast.classList.add('translate-x-24', 'opacity-0');
+    toast.addEventListener('transitionend', () => toast.remove());
+  }, 3000);
+}
+
 
   function showLoading() {
     uploadArea.innerHTML = '<p style="color:#2563eb;">Processando arquivo...</p>';
