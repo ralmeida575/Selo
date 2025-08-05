@@ -7,6 +7,7 @@
   <title>Editor de Certificados</title>
   <script src="https://cdn.tailwindcss.com"></script>
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=Work+Sans:wght@400;500;600&display=swap" rel="stylesheet">
   <style>
     @layer components {
       .template-thumb {
@@ -30,6 +31,9 @@
       #font-size-range::-webkit-slider-thumb {
         @apply appearance-none w-3 h-3 bg-blue-600 rounded-full cursor-pointer;
       }
+      .excel-column {
+        @apply bg-blue-100 text-blue-800 px-3 py-2 rounded text-sm mb-2 cursor-pointer hover:bg-blue-200 transition-colors;
+      }
     }
 
     .draggable {
@@ -41,7 +45,7 @@
       max-width: 80%;
       transition: all 0.2s;
       font-size: 14px;
-        z-index: 10;
+      z-index: 10;
     }
 
     .draggable.selected {
@@ -54,36 +58,52 @@
       border: 2px dashed #3b82f6;
       background-color: rgba(239, 246, 255, 0.5);
     }
-
-
   </style>
 </head>
 <body class="font-sans text-gray-900 bg-gray-50 flex h-screen overflow-hidden">
-  <!-- SIDEBAR -->
-  <div class="w-16 bg-white flex flex-col items-center py-6 border-r border-gray-200 z-10">
-    <img src="https://cdn-icons-png.flaticon.com/512/747/747376.png" class="w-8 h-8 mb-8" alt="Logo">
-    <div class="flex flex-col items-center space-y-5">
-      <button class="p-2 rounded-lg hover:bg-blue-50 transition-all group" title="Gerador">
-        <img src="https://cdn-icons-png.flaticon.com/512/747/747376.png" class="w-5 h-5 group-hover:scale-110 transition-transform">
-      </button>
-      <button class="p-2 rounded-lg hover:bg-blue-50 transition-all group" title="Relatórios">
-        <img src="https://cdn-icons-png.flaticon.com/512/1828/1828843.png" class="w-5 h-5 group-hover:scale-110 transition-transform">
-      </button>
-      <button class="p-2 rounded-lg hover:bg-blue-50 transition-all group" title="Sair">
-        <img src="https://cdn-icons-png.flaticon.com/512/992/992680.png" class="w-5 h-5 group-hover:scale-110 transition-transform">
-      </button>
+  <!-- ASIDE (BARRA LATERAL ESQUERDA) -->
+  <aside class="w-64 bg-white border-r border-gray-200 flex flex-col h-full">
+    <div class="p-4 border-b border-gray-200">
+      <h1 class="text-xl font-semibold text-gray-800">Issuing</h1>
+      <p class="text-sm text-gray-500 mt-1">Select a design, upload your roster and edit your design, then preview and issue!</p>
     </div>
-  </div>
+    
+    <!-- Menu de navegação -->
+    <nav class="flex-1 p-4 space-y-1">
+      <a href="#" class="block px-4 py-2 text-sm font-medium text-gray-700 rounded-lg hover:bg-gray-100 transition-colors">Footer Upload</a>
+      <a href="#" class="block px-4 py-2 text-sm font-medium text-gray-700 rounded-lg hover:bg-gray-100 transition-colors">Creating</a>
+      <a href="#" class="block px-4 py-2 text-sm font-medium text-gray-700 rounded-lg hover:bg-gray-100 transition-colors">Analytics</a>
+      <a href="#" class="block px-4 py-2 text-sm font-medium text-gray-700 rounded-lg hover:bg-gray-100 transition-colors">Profile</a>
+      <a href="#" class="block px-4 py-2 text-sm font-medium text-gray-700 rounded-lg hover:bg-gray-100 transition-colors">Help</a>
+      <a href="#" class="block px-4 py-2 text-sm font-medium text-gray-700 rounded-lg hover:bg-gray-100 transition-colors">Contact us</a>
+      <a href="#" class="block px-4 py-2 text-sm font-medium text-gray-700 rounded-lg hover:bg-gray-100 transition-colors">Sign Out</a>
+    </nav>
+    
+    <div class="p-4 border-t border-gray-200 text-xs text-gray-500">v1.07273058</div>
+  </aside>
 
   <!-- MAIN CONTENT -->
-  <div class="flex-1 flex flex-col overflow-hidden">
-    <div class="flex flex-1 overflow-hidden">
-      <!-- LATERAL ESQUERDA -->
-      <div class="w-72 bg-white p-6 border-r border-gray-200 overflow-y-auto">
-        <div class="flex justify-between items-center mb-6 pb-4 border-b border-gray-200">
-          <h1 class="text-lg font-semibold text-gray-900">Editor de Certificado</h1>
+  <main class="flex-1 flex flex-col overflow-hidden">
+    <!-- TOP BAR -->
+    <div class="bg-white border-b border-gray-200 p-4">
+      <div class="flex items-center justify-between">
+        <h2 class="text-lg font-medium text-gray-800">Default Credential Title</h2>
+        <div class="flex items-center space-x-4">
+          <select id="font-selector" class="text-sm border border-gray-300 rounded px-3 py-1 focus:ring-blue-500 focus:border-blue-500">
+            <option value="Work Sans">Work Sans</option>
+            <option value="Roboto">Roboto</option>
+            <option value="Arial">Arial</option>
+          </select>
+          <button id="save-layout" class="px-3 py-1 bg-blue-600 text-white text-sm rounded hover:bg-blue-700 transition-colors">Save</button>
+          <button class="px-3 py-1 bg-gray-100 text-gray-700 text-sm rounded hover:bg-gray-200 transition-colors">Reload</button>
         </div>
-        
+      </div>
+    </div>
+
+    <!-- CONTEÚDO PRINCIPAL -->
+    <div class="flex-1 flex overflow-hidden">
+      <!-- LATERAL ESQUERDA (CONTROLES) -->
+      <div class="w-72 bg-white p-6 border-r border-gray-200 overflow-y-auto">
         <div class="space-y-6">
           <!-- Upload do Excel -->
           <div>
@@ -116,10 +136,35 @@
             </select>
             <div id="template-thumbnails" class="mt-2 flex flex-col gap-2"></div>
           </div>
+
+          <!-- Fluxo de trabalho -->
+          <div class="space-y-4">
+            <div class="p-3 bg-blue-50 rounded-lg border border-blue-100">
+              <h3 class="text-sm font-medium text-blue-800">Workflow</h3>
+              <ol class="mt-2 space-y-2 text-sm text-gray-700">
+                <li class="flex items-center">
+                  <span class="w-5 h-5 bg-blue-600 text-white text-xs rounded-full flex items-center justify-center mr-2">1</span>
+                  Select a design
+                </li>
+                <li class="flex items-center">
+                  <span class="w-5 h-5 bg-blue-600 text-white text-xs rounded-full flex items-center justify-center mr-2">2</span>
+                  Build the credential
+                </li>
+                <li class="flex items-center">
+                  <span class="w-5 h-5 bg-blue-600 text-white text-xs rounded-full flex items-center justify-center mr-2">3</span>
+                  Preview and issue
+                </li>
+              </ol>
+            </div>
+            
+            <button class="w-full bg-blue-600 hover:bg-blue-700 text-white font-medium py-2 px-4 rounded-lg transition-colors">
+              Continue
+            </button>
+          </div>
         </div>
       </div>
 
-      <!-- ÁREA CENTRAL DE PREVIEW (RESTAURADA COMPLETAMENTE) -->
+      <!-- ÁREA CENTRAL DE PREVIEW -->
       <div class="flex-1 flex flex-col overflow-auto bg-gray-50 p-6">
         <div class="max-w-4xl w-full mx-auto bg-white rounded-xl shadow-sm p-6">
           <!-- Barra de ferramentas -->
@@ -176,8 +221,8 @@
           <div>
             <label for="descricao-certificado" class="block text-sm font-medium text-gray-700 mb-2">Texto do Certificado:</label>
             <div id="descricao-certificado" rows="4" class="w-full px-3 py-2 border border-gray-300 rounded-lg text-sm focus:ring-blue-500 focus:border-blue-500 transition-colors">
-CERTIFICAMOS, por meio deste, que Raphael concluiu con êxito o curso de Odontologia, cumprindo uma carga horária total de 200 horas. De referido curso foi realizado na unidade de Campinas, com a data de conclusão registrada em 20 de julho de 2025. Agradecemos ao corpo docente pela excelência na condução das atividades acadêmicas, cuja dedicação e comprometimento foram fundamentais para a formação do aluno.
-  </div>
+CERTIFICAMOS, por meio deste, que Raphael concluiu com êxito o curso de Odontologia, cumprindo uma carga horária total de 200 horas. De referido curso foi realizado na unidade de Campinas, com a data de conclusão registrada em 20 de julho de 2025. Agradecemos ao corpo docente pela excelência na condução das atividades acadêmicas, cuja dedicação e comprometimento foram fundamentais para a formação do aluno.
+            </div>
             <input type="hidden" name="descricao" id="descricao-certificado-input" value="">
             
             <button id="add-descricao" class="w-full mt-3 bg-blue-600 hover:bg-blue-700 text-white font-medium py-2 px-4 rounded-lg transition-colors flex items-center justify-center gap-2">
@@ -195,7 +240,7 @@ CERTIFICAMOS, por meio deste, que Raphael concluiu con êxito o curso de Odontol
         </div>
       </div>
 
-      <!-- NOVA COLUNA DIREITA (APENAS PROMPT IA) -->
+      <!-- COLUNA DIREITA (IA) -->
       <div class="w-64 bg-white p-6 border-l border-gray-200 overflow-y-auto">
         <h3 class="text-lg font-semibold text-gray-900 mb-4">IA — Geração de Texto</h3>
         
@@ -233,7 +278,7 @@ CERTIFICAMOS, por meio deste, que Raphael concluiu con êxito o curso de Odontol
         </div>
       </div>
     </div>
-  </div>
+  </main>
 
   <script>
   // Estado global da aplicação
@@ -282,45 +327,44 @@ CERTIFICAMOS, por meio deste, que Raphael concluiu con êxito o curso de Odontol
     renderTemplateThumbnails();
   });
 
-function renderTemplateThumbnails() {
-  const thumbnailsContainer = document.getElementById('template-thumbnails');
-  if (!thumbnailsContainer || !templateSelect) return;
+  function renderTemplateThumbnails() {
+    const thumbnailsContainer = document.getElementById('template-thumbnails');
+    if (!thumbnailsContainer || !templateSelect) return;
 
-  thumbnailsContainer.innerHTML = ''; // Limpa antes de recriar
+    thumbnailsContainer.innerHTML = ''; // Limpa antes de recriar
 
-  Array.from(templateSelect.options).forEach(option => {
-    const templatePath = option.value;
+    Array.from(templateSelect.options).forEach(option => {
+      const templatePath = option.value;
 
-   const thumb = document.createElement('div');
-thumb.className = `
-  w-full 
-  aspect-[16/6] 
-  bg-contain bg-no-repeat bg-center 
-  border-2 border-transparent rounded-md 
-  cursor-pointer transition-transform duration-200 
-  hover:scale-[1.02]
-`;
-thumb.style.backgroundImage = `url('${templatePath}')`;
+      const thumb = document.createElement('div');
+      thumb.className = `
+        w-full 
+        aspect-[16/6] 
+        bg-contain bg-no-repeat bg-center 
+        border-2 border-transparent rounded-md 
+        cursor-pointer transition-transform duration-200 
+        hover:scale-[1.02]
+      `;
+      thumb.style.backgroundImage = `url('${templatePath}')`;
 
-    // Clique seleciona template e atualiza preview
-    thumb.addEventListener('click', () => {
-      templateSelect.value = option.value;
-      atualizarPreview();
+      // Clique seleciona template e atualiza preview
+      thumb.addEventListener('click', () => {
+        templateSelect.value = option.value;
+        atualizarPreview();
 
-      // Remove seleção anterior
-      document.querySelectorAll('.template-thumb.selected').forEach(el => el.classList.remove('selected'));
-thumb.classList.add('border-blue-600');
+        // Remove seleção anterior
+        document.querySelectorAll('.template-thumb.selected').forEach(el => el.classList.remove('selected'));
+        thumb.classList.add('border-blue-600');
+      });
+
+      // Se for o selecionado atual, marca como ativo
+      if (templateSelect.value === option.value) {
+        thumb.classList.add('selected');
+      }
+
+      thumbnailsContainer.appendChild(thumb);
     });
-
-    // Se for o selecionado atual, marca como ativo
-    if (templateSelect.value === option.value) {
-      thumb.classList.add('selected');
-    }
-
-    thumbnailsContainer.appendChild(thumb);
-  });
-}
-
+  }
 
   function setupEventListeners() {
     templateSelect.addEventListener('change', atualizarPreview);
@@ -620,7 +664,6 @@ thumb.classList.add('border-blue-600');
     if (!reposicionar) showToast('Texto do certificado atualizado');
   }
 
-  // ✅ Toolbar de texto corrigida
   function setupTextEditor() {
     const toolbar = document.createElement("div");
     toolbar.className = "flex gap-2 mb-2";
@@ -648,47 +691,46 @@ thumb.classList.add('border-blue-600');
     }).join('');
   }
 
-function showToast(message, type = 'success') {
-  const toast = document.createElement('div');
+  function showToast(message, type = 'success') {
+    const toast = document.createElement('div');
 
-  // Classes comuns
-  toast.className = `
-    fixed top-4 right-4
-    min-w-[220px] px-5 py-3
-    text-white font-semibold rounded-lg shadow-lg
-    cursor-default select-none
-    transform translate-x-24 opacity-0
-    transition-all duration-300 ease-out
-    pointer-events-auto
-    z-50
-    `;
+    // Classes comuns
+    toast.className = `
+      fixed top-4 right-4
+      min-w-[220px] px-5 py-3
+      text-white font-semibold rounded-lg shadow-lg
+      cursor-default select-none
+      transform translate-x-24 opacity-0
+      transition-all duration-300 ease-out
+      pointer-events-auto
+      z-50
+      `;
 
-  // Classes por tipo
-  if (type === 'success') {
-    toast.classList.add('bg-green-500');
-  } else if (type === 'error') {
-    toast.classList.add('bg-red-400');
-  } else if (type === 'warning') {
-    toast.classList.add('bg-yellow-400', 'text-black');
-  } else {
-    toast.classList.add('bg-gray-700');
+    // Classes por tipo
+    if (type === 'success') {
+      toast.classList.add('bg-green-500');
+    } else if (type === 'error') {
+      toast.classList.add('bg-red-400');
+    } else if (type === 'warning') {
+      toast.classList.add('bg-yellow-400', 'text-black');
+    } else {
+      toast.classList.add('bg-gray-700');
+    }
+
+    toast.textContent = message;
+    document.body.appendChild(toast);
+
+    // Força reflow para animar (remover translate-x e opacity)
+    requestAnimationFrame(() => {
+      toast.classList.remove('translate-x-24', 'opacity-0');
+    });
+
+    // Após 3 segundos começa a sumir
+    setTimeout(() => {
+      toast.classList.add('translate-x-24', 'opacity-0');
+      toast.addEventListener('transitionend', () => toast.remove());
+    }, 3000);
   }
-
-  toast.textContent = message;
-  document.body.appendChild(toast);
-
-  // Força reflow para animar (remover translate-x e opacity)
-  requestAnimationFrame(() => {
-    toast.classList.remove('translate-x-24', 'opacity-0');
-  });
-
-  // Após 3 segundos começa a sumir
-  setTimeout(() => {
-    toast.classList.add('translate-x-24', 'opacity-0');
-    toast.addEventListener('transitionend', () => toast.remove());
-  }, 3000);
-}
-
 
   function showLoading() {
     uploadArea.innerHTML = '<p style="color:#2563eb;">Processando arquivo...</p>';
@@ -762,8 +804,44 @@ function showToast(message, type = 'success') {
       showToast("Erro na requisição de texto", "error");
     }
   }
+
+  // Funções para a IA
+  function usarSugestao(sugestao) {
+    document.getElementById('prompt').value = sugestao;
+  }
+  
+  function refinarTexto() {
+    const prompt = document.getElementById('prompt').value;
+    const historico = document.getElementById('chat-historico');
+    
+    if (!prompt) {
+      alert('Por favor, digite um prompt para refinar o texto.');
+      return;
+    }
+    
+    const novoItem = document.createElement('div');
+    novoItem.classList.add('p-2', 'border-b', 'border-gray-200');
+    novoItem.innerHTML = `<strong>Você:</strong> ${prompt}`;
+    historico.appendChild(novoItem);
+    
+    // Simulando resposta da IA
+    setTimeout(() => {
+      const resposta = document.createElement('div');
+      resposta.classList.add('p-2', 'border-b', 'border-gray-200', 'bg-blue-50');
+      resposta.innerHTML = '<strong>IA:</strong> Texto refinado com sucesso!';
+      historico.appendChild(resposta);
+      historico.scrollTop = historico.scrollHeight;
+      
+      // Atualizar o campo de texto com um exemplo refinado
+      document.getElementById('descricao-certificado').innerHTML = 
+        'CERTIFICAMOS, por meio deste documento formal, que o aluno Raphael concluiu com êxito o curso de Odontologia, cumprindo integralmente a carga horária de 200 horas. O curso foi realizado na unidade de Campinas, com término em 20 de julho de 2025. Agradecemos especialmente ao corpo docente pela excelência acadêmica e dedicação na formação dos alunos.';
+    }, 1000);
+  }
+  
+  function limparHistorico() {
+    document.getElementById('chat-historico').innerHTML = '';
+    document.getElementById('prompt').value = '';
+  }
 </script>
-
-
 </body>
 </html>
