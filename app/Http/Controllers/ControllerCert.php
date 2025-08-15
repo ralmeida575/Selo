@@ -327,27 +327,33 @@ public function previewCertificado(Request $request)
 
 public function gerarTextoCertificado(Request $request)
 {
-    $request->validate([
-        'nome' => 'required|string',
-        'curso' => 'required|string',
-        'carga_horaria' => 'required|string',
-        'data_conclusao' => 'required|date_format:Y-m-d',
-        'unidade' => 'required|string',
-    ]);
+    \Log::info('=== INICIO gerarTextoCertificado ===');
+    \Log::info('Dados recebidos:', $request->all());
 
     try {
-        $promptExtra = $request->input('prompt_extra', '');
+        $request->validate([
+            'nome' => 'required|string',
+            'curso' => 'required|string',
+            'carga_horaria' => 'required|numeric', // ✅ Mudança aqui: numeric em vez de string
+            'data_conclusao' => 'required|date_format:Y-m-d',
+            'unidade' => 'required|string',
+        ]);
+
+        \Log::info('Validação passou com sucesso');
+
+        // ✅ IMPORTANTE: Corrija aqui também - é 'prompt', não 'prompt_extra'
+        $promptExtra = $request->input('prompt_extra', ''); 
 
         $prompt = "Escreva um texto formal de certificado de conclusão de curso, como no exemplo:
 Exemplo:
 'Certificamos que João Silva concluiu o curso de Administração, com carga horária de 200 horas, realizado na unidade Campinas, em 20/07/2025.'
 
 Agora gere para:
-Nome: {$request->nome}
-Curso: {$request->curso}
-Carga horária: {$request->carga_horaria} horas
-Data de conclusão: {$request->data_conclusao}
-Unidade: {$request->unidade}";
+Nome: {$request->input('nome')}
+Curso: {$request->input('curso')}
+Carga horária: {$request->input('carga_horaria')} horas
+Data de conclusão: {$request->input('data_conclusao')}
+Unidade: {$request->input('unidade')}";
 
         if (!empty(trim($promptExtra))) {
             $prompt .= "\n\nInstruções adicionais: " . $promptExtra;
@@ -373,7 +379,7 @@ Unidade: {$request->unidade}";
 
         $historicoAtualizado = array_merge($historico, [
             ['role' => 'user', 'content' => $prompt],
-            ['role' => 'assistant', 'content' => $textoGerado],
+            ['role' => 'assistant', 'content' => $textoGerado], 
         ]);
 
         return response()->json([
@@ -381,6 +387,7 @@ Unidade: {$request->unidade}";
             'texto'     => $textoGerado,
             'historico' => $historicoAtualizado,
         ]);
+
     } catch (\Exception $e) {
         \Log::error("Erro ao gerar texto do certificado: " . $e->getMessage());
 
@@ -388,7 +395,7 @@ Unidade: {$request->unidade}";
 
         return response()->json([
             'status'    => 'success',
-            'texto'     => "Certificamos que {$request->nome} concluiu o curso de {$request->curso}, com carga horária de {$request->carga_horaria} horas, realizado na unidade {$request->unidade}, em {$request->data_conclusao}.",
+            'texto'     => "Certificamos que {$request->input('nome')} concluiu o curso de {$request->input('curso')}, com carga horária de {$request->input('carga_horaria')} horas, realizado na unidade {$request->input('unidade')}, em {$request->input('data_conclusao')}.",
             'historico' => $historico,
         ]);
     }

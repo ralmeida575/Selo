@@ -4,7 +4,6 @@ use App\Http\Controllers\ProfileController;
 use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\ControllerCert;
 
-Route::post('/certificados/gerar-texto', [ControllerCert::class, 'gerarTextoCertificado'])->name('certificados.gerar-texto');
 
 Route::middleware('auth')->group(function () {
     // Rotas principais
@@ -17,6 +16,8 @@ Route::middleware('auth')->group(function () {
         Route::post('/ler-colunas', [ControllerCert::class, 'lerColunasExcel'])->name('certificados.ler-colunas');
         Route::post('/preview', [ControllerCert::class, 'previewCertificado'])->name('certificados.preview');
         Route::post('/gerar', [ControllerCert::class, 'gerarCertificados'])->name('certificados.gerar');
+        Route::post('/certificados/gerar-texto', [ControllerCert::class, 'gerarTextoCertificado'])->name('certificados.gerar-texto');
+
 
     });
 
@@ -28,6 +29,8 @@ Route::middleware('auth')->group(function () {
     Route::get('/profile', [ProfileController::class, 'edit'])->name('profile.edit');
     Route::patch('/profile', [ProfileController::class, 'update'])->name('profile.update');
     Route::delete('/profile', [ProfileController::class, 'destroy'])->name('profile.destroy');
+
+
 });
 
 require __DIR__.'/auth.php';
