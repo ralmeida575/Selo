@@ -9,27 +9,28 @@
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
   <link href="https://fonts.googleapis.com/css2?family=Work+Sans:wght@400;500;600&display=swap" rel="stylesheet">
   <style>
+    /* \u26a0\ufe0f ATEN\u00c7\u00c3O: Apenas ajustes de CORES para alinhar com o selo (navy + dourado). */
     @layer components {
       .template-thumb {
         @apply w-full h-[70px] bg-cover bg-center cursor-pointer transition-all duration-300 border-2 border-transparent rounded-xl hover:shadow-lg hover:scale-105;
       }
       .template-thumb.selected {
-        @apply border-blue-500 shadow-lg shadow-blue-500/20 scale-105;
+        @apply border-amber-500 shadow-lg shadow-amber-500/20 scale-105;
       }
       .draggable {
         @apply absolute px-3 py-1 cursor-move border border-transparent select-none max-w-[80%] transition-all duration-200 text-sm backdrop-blur-sm bg-white/80 rounded-md shadow-sm;
       }
       .draggable.selected {
-        @apply border-blue-500 bg-blue-50/90 shadow-lg shadow-blue-500/20 ring-1 ring-blue-500/20;
+        @apply border-amber-600 bg-amber-50/90 shadow-lg shadow-amber-500/20 ring-1 ring-amber-500/20;
       }
       .draggable:hover {
         @apply scale-105 shadow-md;
       }
       .preview-container.drop-active {
-        @apply border-2 border-dashed border-blue-500 bg-blue-50/30 backdrop-blur-sm;
+        @apply border-2 border-dashed border-amber-500 bg-amber-50/30 backdrop-blur-sm;
       }
       .excel-column {
-        @apply bg-gradient-to-r from-blue-50 to-indigo-50 text-blue-800 px-4 py-2.5 rounded-lg text-sm mb-2 cursor-pointer hover:from-blue-100 hover:to-indigo-100 transition-all duration-200 border border-blue-200/50 shadow-sm hover:shadow-md transform hover:scale-[1.02];
+        @apply bg-gradient-to-r from-slate-50 to-amber-50 text-slate-800 px-4 py-2.5 rounded-lg text-sm mb-2 cursor-pointer hover:from-amber-100 hover:to-amber-50 transition-all duration-200 border border-amber-200/50 shadow-sm hover:shadow-md transform hover:scale-[1.02];
       }
       .glass-morphism {
         @apply backdrop-blur-lg bg-white/80 border border-white/20 shadow-2xl;
@@ -38,31 +39,31 @@
         @apply bg-white rounded-2xl shadow-xl border border-gray-100/50 backdrop-blur-sm;
       }
       .btn-primary {
-        @apply bg-gradient-to-r from-blue-600 to-indigo-600 hover:from-blue-700 hover:to-indigo-700 text-white font-semibold py-2.5 px-6 rounded-xl transition-all duration-200 shadow-lg hover:shadow-xl transform hover:scale-[1.02] active:scale-[0.98];
+        @apply bg-gradient-to-r from-slate-900 to-slate-800 hover:from-slate-800 hover:to-slate-700 text-white font-semibold py-2.5 px-6 rounded-xl transition-all duration-200 shadow-lg hover:shadow-xl transform hover:scale-[1.02] active:scale-[0.98];
       }
       .btn-secondary {
-        @apply bg-white hover:bg-gray-50 text-gray-700 font-medium py-2.5 px-6 rounded-xl border border-gray-200 transition-all duration-200 shadow-sm hover:shadow-md transform hover:scale-[1.02] active:scale-[0.98];
+        @apply bg-white hover:bg-slate-50 text-slate-700 font-medium py-2.5 px-6 rounded-xl border border-gray-200 transition-all duration-200 shadow-sm hover:shadow-md transform hover:scale-[1.02] active:scale-[0.98];
       }
       .input-modern {
-        @apply w-full px-4 py-2.5 border border-gray-200 rounded-xl text-sm focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500 transition-all duration-200 bg-white/50 backdrop-blur-sm hover:bg-white;
+        @apply w-full px-4 py-2.5 border border-gray-200 rounded-xl text-sm focus:ring-2 focus:ring-amber-500/20 focus:border-amber-500 transition-all duration-200 bg-white/50 backdrop-blur-sm hover:bg-white;
       }
       .sidebar-nav-item {
-        @apply flex items-center px-4 py-3 text-sm font-medium text-gray-700 rounded-xl hover:bg-gradient-to-r hover:from-blue-50 hover:to-indigo-50 hover:text-blue-700 transition-all duration-200 group cursor-pointer;
+        @apply flex items-center px-4 py-3 text-sm font-medium text-gray-700 rounded-xl hover:bg-gradient-to-r hover:from-slate-100 hover:to-amber-50 hover:text-slate-900 transition-all duration-200 group cursor-pointer;
       }
       .sidebar-nav-item.active {
-        @apply bg-gradient-to-r from-blue-500 to-indigo-500 text-white shadow-lg;
+        @apply bg-gradient-to-r from-slate-900 to-slate-800 text-white shadow-lg;
       }
       .column-item {
-        @apply bg-gradient-to-r from-blue-50 to-indigo-50 text-blue-800 px-4 py-2.5 rounded-lg text-sm mb-2 cursor-pointer hover:from-blue-100 hover:to-indigo-100 transition-all duration-200 border border-blue-200/50 shadow-sm hover:shadow-md transform hover:scale-[1.02];
+        @apply bg-gradient-to-r from-slate-50 to-amber-50 text-slate-800 px-4 py-2.5 rounded-lg text-sm mb-2 cursor-pointer hover:from-amber-100 hover:to-amber-50 transition-all duration-200 border border-amber-200/50 shadow-sm hover:shadow-md transform hover:scale-[1.02];
       }
       .drag-handle {
-        @apply w-3 h-3 rounded-full bg-blue-500 mr-2 cursor-move;
+        @apply w-3 h-3 rounded-full bg-amber-500 mr-2 cursor-move;
       }
     }
 
     body {
       font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
-background: linear-gradient(135deg, #f8fafc 0%, #dce3f0 100%);
+      background: linear-gradient(135deg, #f8fafc 0%, #dce3f0 100%);
       min-height: 100vh;
     }
 
@@ -79,15 +80,15 @@ background: linear-gradient(135deg, #f8fafc 0%, #dce3f0 100%);
     }
 
     .draggable.selected {
-      border: 1px solid #3b82f6;
-      background-color: rgba(239, 246, 255, 0.9);
-      box-shadow: 0 4px 12px rgba(59, 130, 246, 0.15);
+      border: 1px solid #f59e0b; /* amber-500 */
+      background-color: rgba(255, 251, 235, 0.9); /* amber-50 */
+      box-shadow: 0 4px 12px rgba(245, 158, 11, 0.25);
       backdrop-filter: blur(8px);
     }
 
     .preview-container.drop-active {
-      border: 2px dashed #3b82f6;
-      background-color: rgba(239, 246, 255, 0.3);
+      border: 2px dashed #f59e0b; /* amber-500 */
+      background-color: rgba(255, 251, 235, 0.3); /* amber-50 */
       backdrop-filter: blur(4px);
     }
 
@@ -96,51 +97,30 @@ background: linear-gradient(135deg, #f8fafc 0%, #dce3f0 100%);
     }
 
     .workflow-step.completed {
-      @apply bg-green-50 border border-green-200;
+      @apply bg-amber-50 border border-amber-200;
     }
 
     .workflow-step.active {
-      @apply bg-blue-50 border border-blue-200;
+      @apply bg-amber-50 border border-amber-200;
     }
 
     .upload-area.active {
-      @apply border-blue-500 bg-gradient-to-br from-blue-50 to-indigo-50;
+      @apply border-amber-500 bg-gradient-to-br from-amber-50 to-amber-100;
     }
 
     /* Custom scrollbar */
-    ::-webkit-scrollbar {
-      width: 6px;
-    }
-    ::-webkit-scrollbar-track {
-      background: #f1f5f9;
-      border-radius: 10px;
-    }
-    ::-webkit-scrollbar-thumb {
-      background: #cbd5e1;
-      border-radius: 10px;
-    }
-    ::-webkit-scrollbar-thumb:hover {
-      background: #94a3b8;
-    }
+    ::-webkit-scrollbar { width: 6px; }
+    ::-webkit-scrollbar-track { background: #f1f5f9; border-radius: 10px; }
+    ::-webkit-scrollbar-thumb { background: #cbd5e1; border-radius: 10px; }
+    ::-webkit-scrollbar-thumb:hover { background: #94a3b8; }
   </style>
 </head>
 <body class="font-sans text-gray-900 flex h-screen overflow-hidden">
   <!-- ASIDE (BARRA LATERAL ESQUERDA) -->
   <aside class="w-72 glass-morphism flex flex-col h-full m-4 mr-0 rounded-2xl">
-    <div class="p-6 border-b border-white/20">
-      <div class="flex items-center space-x-3">
-        <div class="w-10 h-10 bg-gradient-to-r from-blue-500 to-indigo-500 rounded-xl flex items-center justify-center">
-          <svg class="w-6 h-6 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
-          </svg>
-        </div>
-        <div>
-          <h1 class="text-xl font-bold text-gray-800">CertEditor</h1>
-          <p class="text-sm text-gray-600 leading-tight">Editor profissional de certificados</p>
-        </div>
-      </div>
-    </div>
-    
+    <img src="{{ asset('build/assets/img/Selo.png') }}" 
+     alt="Logo" 
+     class="w-36 h-36 object-contain">
     <!-- Menu de navegação -->
     <nav class="flex-1 p-4 space-y-2">
       <a href="#" class="sidebar-nav-item active">
@@ -201,12 +181,12 @@ background: linear-gradient(135deg, #f8fafc 0%, #dce3f0 100%);
       <div class="p-4">
         <div class="flex items-center justify-between space-x-4">
           <div class="workflow-step completed flex-1 text-center">
-            <div class="w-6 h-6 bg-green-500 text-white text-xs rounded-full flex items-center justify-center font-semibold mx-auto">✓</div>
+            <div class="w-6 h-6 bg-amber-600 text-white text-xs rounded-full flex items-center justify-center font-semibold mx-auto">✓</div>
             <span class="text-sm font-medium text-gray-700">Selecionar design</span>
           </div>
           <div class="h-px bg-gray-300 flex-1"></div>
           <div class="workflow-step active flex-1 text-center">
-            <div class="w-6 h-6 bg-blue-500 text-white text-xs rounded-full flex items-center justify-center font-semibold mx-auto">2</div>
+            <div class="w-6 h-6 bg-amber-600 text-white text-xs rounded-full flex items-center justify-center font-semibold mx-auto">2</div>
             <span class="text-sm font-medium text-gray-700">Configurar certificado</span>
           </div>
           <div class="h-px bg-gray-300 flex-1"></div>
@@ -226,14 +206,14 @@ background: linear-gradient(135deg, #f8fafc 0%, #dce3f0 100%);
           <!-- Upload do Excel -->
           <div>
             <div class="flex items-center space-x-2 mb-4">
-              <svg class="w-5 h-5 text-blue-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <svg class="w-5 h-5 text-amber-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
               </svg>
               <label class="text-sm font-semibold text-gray-800">Dados do Excel</label>
             </div>
-            <div class="upload-area border-2 border-dashed border-gray-300 rounded-2xl p-8 text-center cursor-pointer transition-all duration-300 hover:border-blue-500 hover:bg-gradient-to-br hover:from-blue-50 hover:to-indigo-50 group" id="upload-area">
-              <div class="w-16 h-16 mx-auto mb-4 bg-gradient-to-br from-blue-100 to-indigo-100 rounded-2xl flex items-center justify-center group-hover:scale-110 transition-transform duration-300">
-                <svg class="w-8 h-8 text-blue-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <div class="upload-area border-2 border-dashed border-gray-300 rounded-2xl p-8 text-center cursor-pointer transition-all duration-300 hover:border-amber-500 hover:bg-gradient-to-br hover:from-amber-50 hover:to-amber-100 group" id="upload-area">
+              <div class="w-16 h-16 mx-auto mb-4 bg-gradient-to-br from-amber-100 to-amber-50 rounded-2xl flex items-center justify-center group-hover:scale-110 transition-transform duration-300">
+                <svg class="w-8 h-8 text-amber-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                   <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 16a4 4 0 01-.88-7.903A5 5 0 1115.9 6L16 6a5 5 0 011 9.9M9 19l3 3m0 0l3-3m-3 3V10" />
                 </svg>
               </div>
@@ -250,7 +230,7 @@ background: linear-gradient(135deg, #f8fafc 0%, #dce3f0 100%);
           <!-- Campos do Excel -->
           <div>
             <div class="flex items-center space-x-2 mb-4">
-              <svg class="w-5 h-5 text-green-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <svg class="w-5 h-5 text-amber-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 7h.01M7 3h5c.512 0 1.024.195 1.414.586l7 7a2 2 0 010 2.828l-7 7a1.994 1.994 0 01-2.828 0l-7-7A1.994 1.994 0 013 12V7a4 4 0 014-4z" />
               </svg>
               <label class="text-sm font-semibold text-gray-800">Campos Disponíveis</label>
@@ -270,12 +250,12 @@ background: linear-gradient(135deg, #f8fafc 0%, #dce3f0 100%);
           <!-- Texto do Certificado -->
           <div class="mb-6">
             <label for="descricao-certificado" class="flex items-center space-x-2 text-sm font-semibold text-gray-700 mb-3">
-              <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <svg class="w-4 h-4 text-amber-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z" />
               </svg>
               <span>Texto do Certificado</span>
             </label>
-            <div id="descricao-certificado" class="w-full p-4 border border-gray-300 rounded-xl text-sm focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500 transition-all duration-200 bg-white min-h-[120px] resize-none">
+            <div id="descricao-certificado" class="w-full p-4 border border-gray-300 rounded-xl text-sm focus:ring-2 focus:ring-amber-500/20 focus:border-amber-500 transition-all duration-200 bg-white min-h-[120px] resize-none">
 CERTIFICAMOS, por meio deste, que Raphael concluiu com êxito o curso de Odontologia, cumprindo uma carga horária total de 200 horas. De referido curso foi realizado na unidade de Campinas, com a data de conclusão registrada em 20 de julho de 2025. Agradecemos ao corpo docente pela excelência na condução das atividades acadêmicas, cuja dedicação e comprometimento foram fundamentais para a formação do aluno.
             </div>
             
@@ -290,8 +270,8 @@ CERTIFICAMOS, por meio deste, que Raphael concluiu com êxito o curso de Odontol
       </div>
 
       <!-- ÁREA CENTRAL DE PREVIEW -->
-      <div class="flex-1 flex flex-col overflow-auto">
-        <div class="card-elevated p-6 h-full">
+      <div id="editorContainer" class="flex-1 flex flex-col overflow-auto">
+        <div id="mainContent" class="card-elevated p-6 h-full">
           <!-- Barra de ferramentas moderna -->
           <div class="bg-gradient-to-r from-gray-50 to-gray-100 rounded-2xl p-4 mb-6 border border-gray-200">
             <div class="flex flex-wrap items-center gap-4">
@@ -299,7 +279,7 @@ CERTIFICAMOS, por meio deste, que Raphael concluiu com êxito o curso de Odontol
               <div class="flex items-center space-x-3">
                 <div class="flex items-center space-x-2">
                   <label class="text-xs font-semibold text-gray-600 whitespace-nowrap">Fonte</label>
-                  <select id="font-selector" class="text-xs border border-gray-300 rounded-lg px-3 py-1.5 focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500 bg-white">
+                  <select id="font-selector" class="text-xs border border-gray-300 rounded-lg px-3 py-1.5 focus:ring-2 focus:ring-amber-500/20 focus:border-amber-500 bg-white">
                     <option value="Work Sans">Work Sans</option>
                     <option value="Roboto">Roboto</option>
                     <option value="Arial">Arial</option>
@@ -329,7 +309,7 @@ CERTIFICAMOS, por meio deste, que Raphael concluiu com êxito o curso de Odontol
 
               <!-- Botões de ação -->
               <div class="flex space-x-2 ml-auto">
-                <button id="auto-position" class="px-4 py-2 text-xs bg-white border border-gray-300 rounded-lg hover:bg-gray-50 transition-all duration-200 font-medium" title="Auto-Posicionar">
+                <button id="auto-position" class="px-4 py-2 text-xs bg-white border border-gray-300 rounded-lg hover:bg-slate-50 transition-all duration-200 font-medium" title="Auto-Posicionar">
                   Posicionar
                 </button>
                 <button id="delete-field" class="px-4 py-2 text-xs bg-red-50 border border-red-200 rounded-lg text-red-600 hover:bg-red-100 transition-all duration-200 font-medium" title="Remover">
@@ -342,7 +322,7 @@ CERTIFICAMOS, por meio deste, que Raphael concluiu com êxito o curso de Odontol
           <!-- Seleção de Template -->
           <div class="mb-6">
             <div class="flex items-center space-x-2 mb-4">
-              <svg class="w-5 h-5 text-purple-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <svg class="w-5 h-5 text-amber-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z" />
               </svg>
               <h3 class="text-sm font-semibold text-gray-800">Template do Certificado</h3>
@@ -358,7 +338,7 @@ CERTIFICAMOS, por meio deste, que Raphael concluiu com êxito o curso de Odontol
           <!-- Preview do certificado -->
           <div>
             <div class="flex items-center space-x-2 mb-4">
-              <svg class="w-5 h-5 text-indigo-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <svg class="w-5 h-5 text-amber-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z" />
               </svg>
@@ -372,10 +352,16 @@ CERTIFICAMOS, por meio deste, que Raphael concluiu com êxito o curso de Odontol
         </div>
       </div>
 
+     <button id="toggle-ia" class="fixed top-4 right-4 z-50 bg-amber-500 hover:bg-amber-600 text-white p-3 rounded-full shadow-lg transition">
+  <svg id="toggle-icon" class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h16"/>
+  </svg>
+</button>
+
       <!-- COLUNA DIREITA (IA) -->
-      <div class="w-80 card-elevated p-6 overflow-y-auto">
+<div id="ia-panel" class="w-80 card-elevated p-6 overflow-y-auto overflow-hidden transition-all duration-300 ease-in-out opacity-100">
         <div class="flex items-center space-x-3 mb-6">
-          <div class="w-10 h-10 bg-gradient-to-r from-purple-500 to-pink-500 rounded-xl flex items-center justify-center">
+          <div class="w-10 h-10 bg-gradient-to-r from-slate-900 to-slate-700 rounded-xl flex items-center justify-center">
             <svg class="w-6 h-6 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
               <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9.663 17h4.673M12 3v1m6.364 1.636l-.707.707M21 12h-1M4 12H3m3.343-5.657l-.707-.707m2.828 9.9a5 5 0 117.072 0l-.548.547A3.374 3.374 0 0014 18.469V19a2 2 0 11-4 0v-.531c0-.895-.356-1.754-.988-2.386l-.548-.547z" />
             </svg>
@@ -389,7 +375,7 @@ CERTIFICAMOS, por meio deste, que Raphael concluiu com êxito o curso de Odontol
         <div class="space-y-6">
           <div>
             <label class="flex items-center space-x-2 text-sm font-semibold text-gray-700 mb-3">
-              <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <svg class="w-4 h-4 text-amber-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z" />
               </svg>
               <span>Personalização do Texto</span>
@@ -397,13 +383,13 @@ CERTIFICAMOS, por meio deste, que Raphael concluiu com êxito o curso de Odontol
             <textarea id="prompt" rows="4" class="input-modern resize-none" placeholder="Descreva como você gostaria que o texto do certificado fosse personalizado..."></textarea>
             
             <div class="prompt-sugestoes flex flex-wrap gap-2 mt-4">
-              <button onclick="usarSugestao('Deixe o texto mais formal.')" class="text-xs px-3 py-2 bg-gradient-to-r from-blue-50 to-indigo-50 text-blue-700 rounded-lg border border-blue-200 hover:from-blue-100 hover:to-indigo-100 transition-all duration-200 font-medium">
+              <button onclick="usarSugestao('Deixe o texto mais formal.')" class="text-xs px-3 py-2 bg-gradient-to-r from-slate-100 to-amber-50 text-slate-800 rounded-lg border border-amber-200 hover:from-amber-100 hover:to-amber-50 transition-all duration-200 font-medium">
                 ✨ + Formal
               </button>
-              <button onclick="usarSugestao('Adicione agradecimentos ao corpo docente.')" class="text-xs px-3 py-2 bg-gradient-to-r from-green-50 to-emerald-50 text-green-700 rounded-lg border border-green-200 hover:from-green-100 hover:to-emerald-100 transition-all duration-200 font-medium">
+              <button onclick="usarSugestao('Adicione agradecimentos ao corpo docente.')" class="text-xs px-3 py-2 bg-gradient-to-r from-slate-100 to-amber-50 text-slate-800 rounded-lg border border-amber-200 hover:from-amber-100 hover:to-amber-50 transition-all duration-200 font-medium">
                 🙏 + Agradecimento
               </button>
-              <button onclick="usarSugestao('Resuma o texto em uma linha.')" class="text-xs px-3 py-2 bg-gradient-to-r from-purple-50 to-pink-50 text-purple-700 rounded-lg border border-purple-200 hover:from-purple-100 hover:to-pink-100 transition-all duration-200 font-medium">
+              <button onclick="usarSugestao('Resuma o texto em uma linha.')" class="text-xs px-3 py-2 bg-gradient-to-r from-slate-100 to-amber-50 text-slate-800 rounded-lg border border-amber-200 hover:from-amber-100 hover:to-amber-50 transition-all duration-200 font-medium">
                 📝 + Resumo
               </button>
             </div>
@@ -416,7 +402,7 @@ CERTIFICAMOS, por meio deste, que Raphael concluiu com êxito o curso de Odontol
               </svg>
               Refinar com Prompt
             </button>
-            <button onclick="gerarTextoCertificado()" id="gerar-texto-btn" class="w-full bg-gradient-to-r from-purple-600 to-pink-600 hover:from-purple-700 hover:to-pink-700 text-white font-semibold py-2.5 px-6 rounded-xl transition-all duration-200 shadow-lg hover:shadow-xl transform hover:scale-[1.02] active:scale-[0.98]">
+            <button onclick="gerarTextoCertificado()" id="gerar-texto-btn" class="w-full bg-gradient-to-r from-amber-500 to-amber-600 hover:from-amber-600 hover:to-amber-700 text-white font-semibold py-2.5 px-6 rounded-xl transition-all duration-200 shadow-lg hover:shadow-xl transform hover:scale-[1.02] active:scale-[0.98]">
               <svg class="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9.663 17h4.673M12 3v1m6.364 1.636l-.707.707M21 12h-1M4 12H3m3.343-5.657l-.707-.707m2.828 9.9a5 5 0 117.072 0l-.548.547A3.374 3.374 0 0014 18.469V19a2 2 0 11-4 0v-.531c0-.895-.356-1.754-.988-2.386l-.548-.547z" />
               </svg>
@@ -452,6 +438,7 @@ CERTIFICAMOS, por meio deste, que Raphael concluiu com êxito o curso de Odontol
       </div>
     </div>
   </main>
+
 
   <script>
   // Estado global da aplicação
@@ -498,7 +485,46 @@ CERTIFICAMOS, por meio deste, que Raphael concluiu com êxito o curso de Odontol
     setupDragAndDrop();
     setupTextEditor();
     renderTemplateThumbnails();
+
+      const iaPanel = document.getElementById('ia-panel');
+  const toggleBtn = document.getElementById('toggle-ia');
+  const toggleIcon = document.getElementById('toggle-icon');
+
+  if (!iaPanel || !toggleBtn || !toggleIcon) return; // evita erro se algum id não existir
+
+  let iaAberta = true;
+  const paddingAberto = getComputedStyle(iaPanel).padding; // ex.: "24px"
+
+  function abrirIA() {
+    iaPanel.classList.remove('w-0', '-mr-4', 'opacity-0', 'pointer-events-none');
+    iaPanel.classList.add('w-80', 'opacity-100');
+    iaPanel.style.padding = paddingAberto;
+    toggleIcon.innerHTML = `<path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h16"/>`; // hambúrguer
+    iaAberta = true;
+  }
+
+  function fecharIA() {
+    iaPanel.classList.remove('w-80', 'opacity-100');
+    iaPanel.classList.add('w-0', '-mr-4', 'opacity-0', 'pointer-events-none'); // -mr-4 remove o gap do container (space-x-4)
+    iaPanel.style.padding = '0px';
+    toggleIcon.innerHTML = `<path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"/>`; // X
+    iaAberta = false;
+  }
+
+  toggleBtn.addEventListener('click', () => {
+    iaAberta ? fecharIA() : abrirIA();
   });
+  });
+
+   
+  const btn = document.getElementById('toggle-ia');
+  const panel = document.getElementById('ia-panel');
+
+  btn.addEventListener('click', () => {
+    panel.classList.toggle('translate-x-full');
+  });
+
+
 
   function renderTemplateThumbnails() {
     const thumbnailsContainer = document.getElementById('template-thumbnails');
