@@ -17,7 +17,7 @@
         @apply border-blue-500 shadow-lg shadow-blue-500/20 scale-105;
       }
       .draggable {
-        @apply absolute px-3 py-1 cursor-move border border-transparent select-none max-w-[80%] transition-all duration-200 text-sm backdrop-blur-sm;
+        @apply absolute px-3 py-1 cursor-move border border-transparent select-none max-w-[80%] transition-all duration-200 text-sm backdrop-blur-sm bg-white/80 rounded-md shadow-sm;
       }
       .draggable.selected {
         @apply border-blue-500 bg-blue-50/90 shadow-lg shadow-blue-500/20 ring-1 ring-blue-500/20;
@@ -55,11 +55,14 @@
       .column-item {
         @apply bg-gradient-to-r from-blue-50 to-indigo-50 text-blue-800 px-4 py-2.5 rounded-lg text-sm mb-2 cursor-pointer hover:from-blue-100 hover:to-indigo-100 transition-all duration-200 border border-blue-200/50 shadow-sm hover:shadow-md transform hover:scale-[1.02];
       }
+      .drag-handle {
+        @apply w-3 h-3 rounded-full bg-blue-500 mr-2 cursor-move;
+      }
     }
 
     body {
       font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
-      background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+background: linear-gradient(135deg, #f8fafc 0%, #dce3f0 100%);
       min-height: 100vh;
     }
 
@@ -118,14 +121,6 @@
     }
     ::-webkit-scrollbar-thumb:hover {
       background: #94a3b8;
-    }
-
-    /* Ripple effect animation */
-    @keyframes ripple {
-      to {
-        transform: scale(2);
-        opacity: 0;
-      }
     }
   </style>
 </head>
@@ -201,6 +196,28 @@
       </div>
     </div>
 
+    <!-- Workflow horizontal no topo -->
+    <div class="glass-morphism m-4 mb-0 rounded-2xl">
+      <div class="p-4">
+        <div class="flex items-center justify-between space-x-4">
+          <div class="workflow-step completed flex-1 text-center">
+            <div class="w-6 h-6 bg-green-500 text-white text-xs rounded-full flex items-center justify-center font-semibold mx-auto">✓</div>
+            <span class="text-sm font-medium text-gray-700">Selecionar design</span>
+          </div>
+          <div class="h-px bg-gray-300 flex-1"></div>
+          <div class="workflow-step active flex-1 text-center">
+            <div class="w-6 h-6 bg-blue-500 text-white text-xs rounded-full flex items-center justify-center font-semibold mx-auto">2</div>
+            <span class="text-sm font-medium text-gray-700">Configurar certificado</span>
+          </div>
+          <div class="h-px bg-gray-300 flex-1"></div>
+          <div class="workflow-step flex-1 text-center">
+            <div class="w-6 h-6 bg-gray-300 text-white text-xs rounded-full flex items-center justify-center font-semibold mx-auto">3</div>
+            <span class="text-sm font-medium text-gray-500">Preview e emissão</span>
+          </div>
+        </div>
+      </div>
+    </div>
+
     <!-- CONTEÚDO PRINCIPAL -->
     <div class="flex-1 flex overflow-hidden p-4 space-x-4">
       <!-- LATERAL ESQUERDA (CONTROLES) -->
@@ -249,53 +266,24 @@
               </div>
             </div>
           </div>
-
-          <!-- Seleção de Template -->
-          <div>
-            <div class="flex items-center space-x-2 mb-4">
-              <svg class="w-5 h-5 text-purple-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z" />
+          
+          <!-- Texto do Certificado -->
+          <div class="mb-6">
+            <label for="descricao-certificado" class="flex items-center space-x-2 text-sm font-semibold text-gray-700 mb-3">
+              <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z" />
               </svg>
-              <label class="text-sm font-semibold text-gray-800">Template do Certificado</label>
-            </div>
-            <select id="template" class="input-modern mb-4">
-              <option value="https://images.unsplash.com/photo-1606868306217-dbf5046868d2?w=800&h=600">Template Clássico</option>
-              <option value="https://images.unsplash.com/photo-1589829085413-56de8ae18c73?w=800&h=600">Template Moderno</option>
-              <option value="https://images.unsplash.com/photo-1522202176988-66273c2fd55f?w=800&h=600">Template Premium</option>
-            </select>
-            <div id="template-thumbnails" class="space-y-3"></div>
-          </div>
-
-          <!-- Fluxo de trabalho -->
-          <div>
-            <div class="bg-gradient-to-br from-blue-50 to-indigo-50 rounded-2xl p-6 border border-blue-100">
-              <div class="flex items-center space-x-2 mb-4">
-                <svg class="w-5 h-5 text-blue-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5H7a2 2 0 00-2 2v10a2 2 0 002 2h8a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2" />
-                </svg>
-                <h3 class="text-sm font-semibold text-blue-800">Workflow</h3>
-              </div>
-              <div class="space-y-3">
-                <div class="workflow-step completed">
-                  <div class="w-6 h-6 bg-green-500 text-white text-xs rounded-full flex items-center justify-center font-semibold">✓</div>
-                  <span class="text-sm font-medium text-gray-700">Selecionar design</span>
-                </div>
-                <div class="workflow-step active">
-                  <div class="w-6 h-6 bg-blue-500 text-white text-xs rounded-full flex items-center justify-center font-semibold">2</div>
-                  <span class="text-sm font-medium text-gray-700">Configurar certificado</span>
-                </div>
-                <div class="workflow-step">
-                  <div class="w-6 h-6 bg-gray-300 text-white text-xs rounded-full flex items-center justify-center font-semibold">3</div>
-                  <span class="text-sm font-medium text-gray-500">Preview e emissão</span>
-                </div>
-              </div>
+              <span>Texto do Certificado</span>
+            </label>
+            <div id="descricao-certificado" class="w-full p-4 border border-gray-300 rounded-xl text-sm focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500 transition-all duration-200 bg-white min-h-[120px] resize-none">
+CERTIFICAMOS, por meio deste, que Raphael concluiu com êxito o curso de Odontologia, cumprindo uma carga horária total de 200 horas. De referido curso foi realizado na unidade de Campinas, com a data de conclusão registrada em 20 de julho de 2025. Agradecemos ao corpo docente pela excelência na condução das atividades acadêmicas, cuja dedicação e comprometimento foram fundamentais para a formação do aluno.
             </div>
             
-            <button class="w-full btn-primary mt-6">
-              <svg class="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 9l3 3m0 0l-3 3m3-3H8m13 0a9 9 0 11-18 0 9 9 0 0118 0z" />
+            <button id="add-descricao" class="w-full btn-primary mt-4">
+              <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4 mr-2" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6v6m0 0v6m0-6h6m-6 0H6" />
               </svg>
-              Continuar
+              Adicionar/Atualizar Texto
             </button>
           </div>
         </div>
@@ -351,24 +339,20 @@
             </div>
           </div>
 
-          <!-- Texto do Certificado -->
+          <!-- Seleção de Template -->
           <div class="mb-6">
-            <label for="descricao-certificado" class="flex items-center space-x-2 text-sm font-semibold text-gray-700 mb-3">
-              <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z" />
+            <div class="flex items-center space-x-2 mb-4">
+              <svg class="w-5 h-5 text-purple-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z" />
               </svg>
-              <span>Texto do Certificado</span>
-            </label>
-            <div id="descricao-certificado" class="w-full p-4 border border-gray-300 rounded-xl text-sm focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500 transition-all duration-200 bg-white min-h-[120px] resize-none" contenteditable="true">
-CERTIFICAMOS, por meio deste, que Raphael concluiu com êxito o curso de Odontologia, cumprindo uma carga horária total de 200 horas. De referido curso foi realizado na unidade de Campinas, com a data de conclusão registrada em 20 de julho de 2025. Agradecemos ao corpo docente pela excelência na condução das atividades acadêmicas, cuja dedicação e comprometimento foram fundamentais para a formação do aluno.
+              <h3 class="text-sm font-semibold text-gray-800">Template do Certificado</h3>
             </div>
-            
-            <button id="add-descricao" class="w-full mt-4 btn-primary">
-              <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4 mr-2" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6v6m0 0v6m0-6h6m-6 0H6" />
-              </svg>
-              Adicionar/Atualizar Texto
-            </button>
+            <select id="template" class="input-modern mb-4">
+              <option value="https://images.unsplash.com/photo-1606868306217-dbf5046868d2?w=800&h=600">Template Clássico</option>
+              <option value="https://images.unsplash.com/photo-1589829085413-56de8ae18c73?w=800&h=600">Template Moderno</option>
+              <option value="https://images.unsplash.com/photo-1522202176988-66273c2fd55f?w=800&h=600" selected>Template Premium</option>
+            </select>
+            <div id="template-thumbnails" class="grid grid-cols-3 gap-3"></div>
           </div>
 
           <!-- Preview do certificado -->
@@ -380,8 +364,9 @@ CERTIFICAMOS, por meio deste, que Raphael concluiu com êxito o curso de Odontol
               </svg>
               <h3 class="text-sm font-semibold text-gray-800">Preview do Certificado</h3>
             </div>
-            <div class="preview-container border-2 border-gray-200 rounded-2xl bg-white w-full aspect-[4/3] relative overflow-hidden shadow-inner hover:shadow-lg transition-shadow duration-300" id="preview" style="background-size: contain; background-repeat: no-repeat; background-position: center;">
+            <div class="preview-container border-2 border-gray-200 rounded-2xl bg-white w-full aspect-[4/3] relative overflow-hidden shadow-inner hover:shadow-lg transition-shadow duration-300" id="preview" style="background-image: url('https://images.unsplash.com/photo-1522202176988-66273c2fd55f?w=800&h=600'); background-size: cover; background-position: center;">
               <div class="absolute inset-0 bg-gradient-to-br from-gray-50/30 to-transparent pointer-events-none"></div>
+              <!-- Elementos arrastáveis serão inseridos aqui pelo JavaScript -->
             </div>
           </div>
         </div>
